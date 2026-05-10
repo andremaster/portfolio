@@ -1,300 +1,229 @@
-/* Definicao de variaveis para o tema claro e escuro */
+/* Definição das variáveis de cores para os temas claro e escuro */
 :root {
-    --cor-fundo: #f4f4f9;
-    --cor-texto: #333333;
-    --cor-primaria: #0056b3;
-    --cor-secundaria: #ffffff;
-    --cor-borda: #dddddd;
-    --cor-fundo-secao: #ffffff;
-    --sombra: 0 4px 6px rgba(0,0,0,0.1);
+    --bg-color: #f4f4f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --primary-color: #0056b3;
+    --border-color: #dddddd;
+    --success-bg: #d4edda;
+    --success-text: #155724;
+    --error-bg: #f8d7da;
+    --error-text: #721c24;
 }
 
-/* Variaveis do tema escuro ativadas via JavaScript */
-[data-theme="escuro"] {
-    --cor-fundo: #121212;
-    --cor-texto: #e0e0e0;
-    --cor-primaria: #4da3ff;
-    --cor-secundaria: #1e1e1e;
-    --cor-borda: #333333;
-    --cor-fundo-secao: #1e1e1e;
-    --sombra: 0 4px 6px rgba(0,0,0,0.5);
+/* Estilos aplicados quando o tema escuro está ativo */
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --primary-color: #4da3ff;
+    --border-color: #333333;
 }
 
-/* Reset basico de CSS */
+/* Reset básico e configurações globais */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    scroll-behavior: smooth;
 }
 
 body {
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     line-height: 1.6;
     transition: background-color 0.3s, color 0.3s;
 }
 
-/* Cabecalho e navegacao */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Cabeçalho e Navegação */
 header {
-    background-color: var(--cor-secundaria);
-    box-shadow: var(--sombra);
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
     position: fixed;
     width: 100%;
     top: 0;
-    z-index: 1000;
-    transition: background-color 0.3s;
+    z-index: 100;
 }
 
-nav {
+.navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 5%;
-    max-width: 1200px;
-    margin: 0 auto;
+    height: 70px;
 }
 
-.logo {
-    font-size: 1.5rem;
+.logo-text {
     font-weight: bold;
-    color: var(--cor-primaria);
+    font-size: 1.2rem;
     text-decoration: none;
+    color: var(--primary-color);
 }
 
-.menu {
+.nav-links {
     display: flex;
     list-style: none;
     gap: 20px;
 }
 
-.menu a {
+.nav-links a {
     text-decoration: none;
-    color: var(--cor-texto);
+    color: var(--text-color);
     font-weight: 500;
-    transition: color 0.2s;
 }
 
-.menu a:hover {
-    color: var(--cor-primaria);
-}
-
-/* Botoes de acao no menu */
-.controles-menu {
+.nav-buttons {
     display: flex;
-    align-items: center;
-    gap: 15px;
+    gap: 10px;
 }
 
-#btn-tema {
-    background: none;
-    border: 1px solid var(--cor-borda);
-    color: var(--cor-texto);
-    padding: 5px 10px;
+/* Botões Customizados */
+button {
+    padding: 8px 15px;
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    transition: background 0.3s;
+    border: 1px solid var(--primary-color);
 }
 
-#btn-tema:hover {
-    background-color: var(--cor-borda);
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--primary-color);
 }
 
 .btn-mobile {
     display: none;
-    background: none;
-    border: none;
+    background: transparent;
+    color: var(--text-color);
     font-size: 1.5rem;
-    color: var(--cor-texto);
-    cursor: pointer;
+    border: none;
 }
 
-/* Estrutura principal */
+/* Seções e Layout */
 main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 100px 5% 40px;
+    margin-top: 100px;
 }
 
-section {
-    background-color: var(--cor-fundo-secao);
-    margin-bottom: 40px;
-    padding: 40px;
+.card {
+    background-color: var(--card-bg);
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: var(--sombra);
-    transition: background-color 0.3s;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
 }
 
-h1, h2, h3 {
-    color: var(--cor-primaria);
+h1, h2 {
+    color: var(--primary-color);
     margin-bottom: 20px;
 }
 
-/* Secao Sobre Mim */
-.resumo-perfil {
-    margin-top: 15px;
-    margin-bottom: 25px;
-}
-
-.skills-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.skill-tag {
-    background-color: var(--cor-fundo);
-    border: 1px solid var(--cor-borda);
-    padding: 5px 15px;
+.tech-tags span {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    padding: 3px 10px;
     border-radius: 20px;
-    font-size: 0.9rem;
-}
-
-/* Secao Formacao e Experiencia */
-.item-historico {
-    border-left: 3px solid var(--cor-primaria);
-    padding-left: 15px;
-    margin-bottom: 25px;
-}
-
-.item-historico h3 {
-    margin-bottom: 5px;
-    color: var(--cor-texto);
-}
-
-.data-historico {
     font-size: 0.85rem;
-    color: #777;
-    margin-bottom: 10px;
-    display: block;
+    margin: 5px 5px 0 0;
 }
 
-/* Secao Portfolio */
-.grid-portfolio {
+.timeline-item {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.project-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
 }
 
-.cartao-projeto {
-    border: 1px solid var(--cor-borda);
-    border-radius: 8px;
+.project-card {
+    border: 1px solid var(--border-color);
     padding: 20px;
-    background-color: var(--cor-fundo);
-    transition: transform 0.2s;
+    border-radius: 6px;
 }
 
-.cartao-projeto:hover {
-    transform: translateY(-5px);
-}
-
-.cartao-projeto a {
-    display: inline-block;
-    margin-top: 15px;
-    text-decoration: none;
-    color: var(--cor-secundaria);
-    background-color: var(--cor-primaria);
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-}
-
-/* Secao Contato */
-.form-contato {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    max-width: 600px;
-}
-
-.form-grupo {
+/* Formulário e Validação */
+.form-group {
+    margin-bottom: 15px;
     display: flex;
     flex-direction: column;
 }
 
-.form-grupo label {
+label {
     margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.form-grupo input, .form-grupo textarea {
-    padding: 10px;
-    border: 1px solid var(--cor-borda);
-    border-radius: 5px;
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto);
-    font-size: 1rem;
-}
-
-.form-grupo textarea {
-    resize: vertical;
-    min-height: 120px;
-}
-
-button[type="submit"] {
-    background-color: var(--cor-primaria);
-    color: var(--cor-secundaria);
-    border: none;
-    padding: 12px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
     font-weight: bold;
-    transition: opacity 0.2s;
 }
 
-button[type="submit"]:hover {
-    opacity: 0.8;
+input, textarea {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
 }
 
-/* Estilo da mensagem de sucesso */
-#mensagem-alerta {
+textarea {
+    height: 120px;
+}
+
+.hidden {
     display: none;
+}
+
+#form-message {
     padding: 15px;
     margin-bottom: 20px;
-    border-radius: 5px;
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    border-radius: 4px;
     font-weight: bold;
 }
 
-/* Rodape */
-footer {
-    text-align: center;
-    padding: 20px;
-    background-color: var(--cor-secundaria);
-    color: var(--cor-texto);
-    border-top: 1px solid var(--cor-borda);
-    margin-top: 40px;
+.success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
 }
 
-/* Responsividade para dispositivos moveis */
+.error {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+}
+
+/* Responsividade Mobile */
 @media (max-width: 768px) {
     .btn-mobile {
         display: block;
     }
 
-    .menu {
+    .nav-links {
         display: none;
         flex-direction: column;
         position: absolute;
-        top: 60px;
+        top: 70px;
         left: 0;
         width: 100%;
-        background-color: var(--cor-secundaria);
+        background-color: var(--card-bg);
         padding: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-bottom: 1px solid var(--border-color);
     }
 
-    .menu.ativo {
+    .nav-links.active {
         display: flex;
     }
+}
 
-    section {
-        padding: 20px;
-    }
+footer {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 0.9rem;
+    color: #888;
 }
