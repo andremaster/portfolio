@@ -1,0 +1,300 @@
+/* Definicao de variaveis para o tema claro e escuro */
+:root {
+    --cor-fundo: #f4f4f9;
+    --cor-texto: #333333;
+    --cor-primaria: #0056b3;
+    --cor-secundaria: #ffffff;
+    --cor-borda: #dddddd;
+    --cor-fundo-secao: #ffffff;
+    --sombra: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Variaveis do tema escuro ativadas via JavaScript */
+[data-theme="escuro"] {
+    --cor-fundo: #121212;
+    --cor-texto: #e0e0e0;
+    --cor-primaria: #4da3ff;
+    --cor-secundaria: #1e1e1e;
+    --cor-borda: #333333;
+    --cor-fundo-secao: #1e1e1e;
+    --sombra: 0 4px 6px rgba(0,0,0,0.5);
+}
+
+/* Reset basico de CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Cabecalho e navegacao */
+header {
+    background-color: var(--cor-secundaria);
+    box-shadow: var(--sombra);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    transition: background-color 0.3s;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--cor-primaria);
+    text-decoration: none;
+}
+
+.menu {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.menu a {
+    text-decoration: none;
+    color: var(--cor-texto);
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.menu a:hover {
+    color: var(--cor-primaria);
+}
+
+/* Botoes de acao no menu */
+.controles-menu {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#btn-tema {
+    background: none;
+    border: 1px solid var(--cor-borda);
+    color: var(--cor-texto);
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+}
+
+#btn-tema:hover {
+    background-color: var(--cor-borda);
+}
+
+.btn-mobile {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--cor-texto);
+    cursor: pointer;
+}
+
+/* Estrutura principal */
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 5% 40px;
+}
+
+section {
+    background-color: var(--cor-fundo-secao);
+    margin-bottom: 40px;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: var(--sombra);
+    transition: background-color 0.3s;
+}
+
+h1, h2, h3 {
+    color: var(--cor-primaria);
+    margin-bottom: 20px;
+}
+
+/* Secao Sobre Mim */
+.resumo-perfil {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.skill-tag {
+    background-color: var(--cor-fundo);
+    border: 1px solid var(--cor-borda);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+/* Secao Formacao e Experiencia */
+.item-historico {
+    border-left: 3px solid var(--cor-primaria);
+    padding-left: 15px;
+    margin-bottom: 25px;
+}
+
+.item-historico h3 {
+    margin-bottom: 5px;
+    color: var(--cor-texto);
+}
+
+.data-historico {
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Secao Portfolio */
+.grid-portfolio {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.cartao-projeto {
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    padding: 20px;
+    background-color: var(--cor-fundo);
+    transition: transform 0.2s;
+}
+
+.cartao-projeto:hover {
+    transform: translateY(-5px);
+}
+
+.cartao-projeto a {
+    display: inline-block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: var(--cor-secundaria);
+    background-color: var(--cor-primaria);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+/* Secao Contato */
+.form-contato {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+}
+
+.form-grupo {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grupo label {
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-grupo input, .form-grupo textarea {
+    padding: 10px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 5px;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    font-size: 1rem;
+}
+
+.form-grupo textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+button[type="submit"] {
+    background-color: var(--cor-primaria);
+    color: var(--cor-secundaria);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+button[type="submit"]:hover {
+    opacity: 0.8;
+}
+
+/* Estilo da mensagem de sucesso */
+#mensagem-alerta {
+    display: none;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    font-weight: bold;
+}
+
+/* Rodape */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--cor-secundaria);
+    color: var(--cor-texto);
+    border-top: 1px solid var(--cor-borda);
+    margin-top: 40px;
+}
+
+/* Responsividade para dispositivos moveis */
+@media (max-width: 768px) {
+    .btn-mobile {
+        display: block;
+    }
+
+    .menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background-color: var(--cor-secundaria);
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .menu.ativo {
+        display: flex;
+    }
+
+    section {
+        padding: 20px;
+    }
+}
