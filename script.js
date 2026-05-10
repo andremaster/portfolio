@@ -1,229 +1,81 @@
-/* Definição das variáveis de cores para os temas claro e escuro */
-:root {
-    --bg-color: #f4f4f9;
-    --card-bg: #ffffff;
-    --text-color: #333333;
-    --primary-color: #0056b3;
-    --border-color: #dddddd;
-    --success-bg: #d4edda;
-    --success-text: #155724;
-    --error-bg: #f8d7da;
-    --error-text: #721c24;
-}
+/* Fundamentos da Programação Web - UNINTER
+   Scripts para interação e validação do portfólio
+*/
 
-/* Estilos aplicados quando o tema escuro está ativo */
-[data-theme="dark"] {
-    --bg-color: #121212;
-    --card-bg: #1e1e1e;
-    --text-color: #e0e0e0;
-    --primary-color: #4da3ff;
-    --border-color: #333333;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- FUNCIONALIDADE: Alternar Tema Claro/Escuro ---
+    const themeBtn = document.getElementById('theme-toggle');
+    const body = document.body;
 
-/* Reset básico e configurações globais */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    themeBtn.addEventListener('click', function() {
+        // Altera o atributo data-theme para disparar as cores do CSS
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme');
+            themeBtn.innerText = 'Modo Escuro';
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            themeBtn.innerText = 'Modo Claro';
+        }
+    });
 
-body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    line-height: 1.6;
-    transition: background-color 0.3s, color 0.3s;
-}
+    // --- FUNCIONALIDADE: Menu Mobile Responsivo ---
+    const mobileBtn = document.getElementById('mobile-menu');
+    const navLinks = document.getElementById('nav-links');
 
-.container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
+    mobileBtn.addEventListener('click', function() {
+        // Ativa ou desativa a classe para mostrar o menu em dispositivos móveis
+        navLinks.classList.toggle('active');
+    });
 
-/* Cabeçalho e Navegação */
-header {
-    background-color: var(--card-bg);
-    border-bottom: 1px solid var(--border-color);
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 100;
-}
+    // Fecha o menu ao clicar em um link para facilitar a navegação
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+        });
+    });
 
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 70px;
-}
+    // --- FUNCIONALIDADE: Validação do Formulário de Contato ---
+    const contactForm = document.getElementById('contact-form');
+    const messageBox = document.getElementById('form-message');
 
-.logo-text {
-    font-weight: bold;
-    font-size: 1.2rem;
-    text-decoration: none;
-    color: var(--primary-color);
-}
+    contactForm.addEventListener('submit', function(event) {
+        // Impede o recarregamento da página ao enviar
+        event.preventDefault();
 
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 20px;
-}
+        // Coleta de dados dos campos do formulário
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
 
-.nav-links a {
-    text-decoration: none;
-    color: var(--text-color);
-    font-weight: 500;
-}
+        // Função interna para exibir avisos visuais no formulário
+        function showNotification(text, type) {
+            messageBox.innerText = text;
+            messageBox.className = type === 'success' ? 'success' : 'error';
+            messageBox.style.display = 'block';
+            
+            // Oculta a mensagem após 5 segundos
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
 
-.nav-buttons {
-    display: flex;
-    gap: 10px;
-}
+        // Validação obrigatória: Verifica se os campos estão preenchidos
+        if (name === "" || email === "" || message === "") {
+            showNotification("Erro: Todos os campos devem ser preenchidos.", "error");
+            return;
+        }
 
-/* Botões Customizados */
-button {
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 1px solid var(--primary-color);
-}
+        // Validação obrigatória: Formato de e-mail usando Expressão Regular
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            showNotification("Erro: Por favor, insira um e-mail válido.", "error");
+            return;
+        }
 
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-secondary {
-    background: transparent;
-    color: var(--primary-color);
-}
-
-.btn-mobile {
-    display: none;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 1.5rem;
-    border: none;
-}
-
-/* Seções e Layout */
-main {
-    margin-top: 100px;
-}
-
-.card {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    border: 1px solid var(--border-color);
-}
-
-h1, h2 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-}
-
-.tech-tags span {
-    display: inline-block;
-    background: var(--primary-color);
-    color: white;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    margin: 5px 5px 0 0;
-}
-
-.timeline-item {
-    padding: 15px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
-}
-
-.project-card {
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    border-radius: 6px;
-}
-
-/* Formulário e Validação */
-.form-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input, textarea {
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-color);
-    color: var(--text-color);
-}
-
-textarea {
-    height: 120px;
-}
-
-.hidden {
-    display: none;
-}
-
-#form-message {
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    font-weight: bold;
-}
-
-.success {
-    background-color: var(--success-bg);
-    color: var(--success-text);
-}
-
-.error {
-    background-color: var(--error-bg);
-    color: var(--error-text);
-}
-
-/* Responsividade Mobile */
-@media (max-width: 768px) {
-    .btn-mobile {
-        display: block;
-    }
-
-    .nav-links {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 70px;
-        left: 0;
-        width: 100%;
-        background-color: var(--card-bg);
-        padding: 20px;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .nav-links.active {
-        display: flex;
-    }
-}
-
-footer {
-    text-align: center;
-    padding: 40px 0;
-    font-size: 0.9rem;
-    color: #888;
-}
+        // --- SIMULAÇÃO DE ENVIO COM SUCESSO ---
+        // Exibe mensagem de confirmação e limpa os campos
+        showNotification("Mensagem enviada com sucesso!", "success");
+        contactForm.reset();
+    });
+});
