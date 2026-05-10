@@ -1,79 +1,229 @@
-// Funcionalidade 1: Menu Mobile Responsivo
-const btnMobile = document.getElementById('btn-mobile');
-const menuNavegacao = document.getElementById('menu-navegacao');
+/* Definição das variáveis de cores para os temas claro e escuro */
+:root {
+    --bg-color: #f4f4f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --primary-color: #0056b3;
+    --border-color: #dddddd;
+    --success-bg: #d4edda;
+    --success-text: #155724;
+    --error-bg: #f8d7da;
+    --error-text: #721c24;
+}
 
-btnMobile.addEventListener('click', function() {
-    // Adiciona ou remove a classe que mostra o menu no celular
-    menuNavegacao.classList.toggle('ativo');
-});
+/* Estilos aplicados quando o tema escuro está ativo */
+[data-theme="dark"] {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --primary-color: #4da3ff;
+    --border-color: #333333;
+}
 
-// Fechar menu mobile ao clicar num link
-const linksMenu = document.querySelectorAll('.menu a');
-linksMenu.forEach(function(link) {
-    link.addEventListener('click', function() {
-        menuNavegacao.classList.remove('ativo');
-    });
-});
+/* Reset básico e configurações globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-// Funcionalidade 2: Troca de Tema (Claro / Escuro)
-const btnTema = document.getElementById('btn-tema');
-const htmlElement = document.documentElement; // Pega a tag <html>
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+}
 
-btnTema.addEventListener('click', function() {
-    // Verifica qual o tema atual e inverte
-    if (htmlElement.getAttribute('data-theme') === 'escuro') {
-        htmlElement.removeAttribute('data-theme');
-        btnTema.innerText = 'Modo Escuro';
-    } else {
-        htmlElement.setAttribute('data-theme', 'escuro');
-        btnTema.innerText = 'Modo Claro';
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Cabeçalho e Navegação */
+header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+}
+
+.logo-text {
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botões Customizados */
+button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--primary-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--primary-color);
+}
+
+.btn-mobile {
+    display: none;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    border: none;
+}
+
+/* Seções e Layout */
+main {
+    margin-top: 100px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+}
+
+h1, h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.tech-tags span {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin: 5px 5px 0 0;
+}
+
+.timeline-item {
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.project-card {
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 6px;
+}
+
+/* Formulário e Validação */
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, textarea {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+textarea {
+    height: 120px;
+}
+
+.hidden {
+    display: none;
+}
+
+#form-message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.success {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+}
+
+.error {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+    .btn-mobile {
+        display: block;
     }
-});
 
-// Funcionalidade 3: Validacao e Simulacao de Envio do Formulario
-const formulario = document.getElementById('formulario-contato');
-const alertaMensagem = document.getElementById('mensagem-alerta');
-
-formulario.addEventListener('submit', function(evento) {
-    // Previne que a pagina recarregue (comportamento padrao do form)
-    evento.preventDefault();
-
-    // Pega os valores dos campos
-    const campoNome = document.getElementById('nome').value.trim();
-    const campoEmail = document.getElementById('email').value.trim();
-    const campoMensagem = document.getElementById('mensagem').value.trim();
-
-    // Validacao 1: Campos vazios
-    if (campoNome === '' || campoEmail === '' || campoMensagem === '') {
-        // Utilizando uma mensagem customizada ao inves do alert bloqueante
-        mostrarAlerta('Por favor, preencha todos os campos obrigatórios.', '#f8d7da', '#721c24', '#f5c6cb');
-        return; // Para a execucao aqui
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: var(--card-bg);
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
     }
 
-    // Validacao 2: Formato de e-mail basico com Expressao Regular (Regex)
-    const padraoEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!padraoEmail.test(campoEmail)) {
-        mostrarAlerta('Por favor, insira um endereço de e-mail válido.', '#f8d7da', '#721c24', '#f5c6cb');
-        return;
+    .nav-links.active {
+        display: flex;
     }
+}
 
-    // Se passou nas validacoes, simula o sucesso
-    mostrarAlerta('Mensagem enviada com sucesso! Entrarei em contato em breve.', '#d4edda', '#155724', '#c3e6cb');
-    
-    // Limpa os campos do formulario
-    formulario.reset();
-});
-
-// Funcao auxiliar para mostrar alertas de forma visual na pagina
-function mostrarAlerta(texto, corFundo, corTexto, corBorda) {
-    alertaMensagem.innerText = texto;
-    alertaMensagem.style.backgroundColor = corFundo;
-    alertaMensagem.style.color = corTexto;
-    alertaMensagem.style.borderColor = corBorda;
-    alertaMensagem.style.display = 'block';
-
-    // Esconde a mensagem apos 5 segundos
-    setTimeout(function() {
-        alertaMensagem.style.display = 'none';
-    }, 5000);
+footer {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 0.9rem;
+    color: #888;
 }
