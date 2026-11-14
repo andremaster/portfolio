@@ -32,7 +32,7 @@ export async function createOrganization(_: ActionState, form: FormData): Promis
   if (error || !orgId) return { error: "Não foi possível criar a organização." };
 
   const projectId = await createProjectInternal(supabase, orgId as string, withDemo ? "Projeto Atlas (demonstração)" : "Meu primeiro projeto",
-    withDemo ? "Projeto fictício para conhecer o Intra AI Hub." : null, withDemo);
+    withDemo ? "Projeto fictício para conhecer o Contexa." : null, withDemo);
   if (projectId) await setActive(projectId);
   redirect("/dashboard");
 }

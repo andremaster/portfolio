@@ -1,8 +1,8 @@
 {
-  "name": "intra-ai-hub",
+  "name": "contexa",
   "version": "0.1.0",
   "private": true,
-  "description": "Intra AI Hub by Autyma — memória técnica de projetos de IA com RAG",
+  "description": "Contexa by Autyma — memória técnica de projetos de IA com RAG",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Intra AI Hub · Autyma", template: "%s · Intra AI Hub" },
+  title: { default: "Contexa · Autyma", template: "%s · Contexa" },
   description: "A memória técnica dos seus projetos de IA. Agentes especializados com RAG, controle de acesso e fontes rastreáveis.",
   icons: { icon: "/icon.svg" },
 };

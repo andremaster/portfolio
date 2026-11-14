@@ -27,7 +27,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </aside>
       <div className="main">
         <header className="topbar">
-          <Link href="/dashboard" className="mobile-only"><div className="brand-mark" style={{ width: 30, height: 30, fontSize: ".85rem" }}>A</div></Link>
+          <Link href="/dashboard" className="mobile-only"><div className="brand-mark" style={{ width: 30, height: 30, fontSize: ".85rem" }}>C</div></Link>
           <ProjectSwitcher projects={ctx.projects} current={ctx.project?.id} />
           {ctx.isExternal && <span className="badge badge-warn">Acesso externo</span>}
           <div className="grow" />

@@ -13,7 +13,7 @@ export function buildSystemPrompt(agent: { name: string; system_prompt: string }
     .join("\n\n");
   return `${agent.system_prompt.trim()}
 
-Você é o agente "${agent.name}" do projeto "${projectName}" no Intra AI Hub.
+Você é o agente "${agent.name}" do projeto "${projectName}" no Contexa.
 
 Regras obrigatórias:
 - Responda em português do Brasil, de forma objetiva e técnica.

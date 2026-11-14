@@ -1,15 +1,15 @@
-name: intra-ai-hub
+name: contexa
 on:
-  push: { paths: ["intra-ai-hub/**"] }
-  pull_request: { paths: ["intra-ai-hub/**"] }
+  push: { paths: ["contexa/**"] }
+  pull_request: { paths: ["contexa/**"] }
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: intra-ai-hub } }
+    defaults: { run: { working-directory: contexa } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm, cache-dependency-path: intra-ai-hub/package-lock.json }
+        with: { node-version: 22, cache: npm, cache-dependency-path: contexa/package-lock.json }
       - run: npm ci
       - run: npm test
       - run: npm run build
@@ -19,4 +19,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y postgresql-16 postgresql-16-pgvector
-      - run: sudo -E bash intra-ai-hub/tests/sql/run.sh
+      - run: sudo -E bash contexa/tests/sql/run.sh

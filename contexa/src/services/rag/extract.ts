@@ -50,7 +50,7 @@ export async function fetchUrlText(url: string): Promise<string> {
   if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal") ||
       /^(127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|0\.|\[?::1\]?$|\[?f[cd])/.test(host))
     throw new ExtractionError("Endereços internos não são permitidos.");
-  const res = await fetch(u, { redirect: "follow", signal: AbortSignal.timeout(15000), headers: { "user-agent": "IntraAIHub/1.0" } });
+  const res = await fetch(u, { redirect: "follow", signal: AbortSignal.timeout(15000), headers: { "user-agent": "Contexa/1.0" } });
   if (!res.ok) throw new ExtractionError(`Falha ao baixar a URL (${res.status}).`);
   const type = res.headers.get("content-type") ?? "";
   const buf = new Uint8Array(await res.arrayBuffer());

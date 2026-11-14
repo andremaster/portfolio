@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Brand } from "@/components/brand";
 
 export const metadata = {
-  title: "Intra AI Hub · A camada de contexto governada para IA nas empresas",
+  title: "Contexa · A camada de contexto governada para IA nas empresas",
   description: "Organize documentos, código, MDs, APIs e decisões dos seus projetos. Agentes de IA respondem com fontes e respeitam quem pode ver o quê — inclusive terceiros.",
 };
 
@@ -53,7 +53,7 @@ const PLANS = [
   {
     name: "Enterprise", price: "Sob consulta", period: "", tag: "Para operação crítica",
     items: ["Projetos e usuários sob medida", "Implantação no seu Azure (tenant próprio)", "SSO Microsoft Entra ID*", "Integrações GitHub, Azure DevOps, SharePoint, Fabric*", "SLA e DPA/LGPD", "Gerente de sucesso dedicado"],
-    cta: "Falar com a Autyma", href: "mailto:contato@autyma.com.br?subject=Intra%20AI%20Hub%20Enterprise",
+    cta: "Falar com a Autyma", href: "mailto:contato@autyma.com.br?subject=Contexa%20Enterprise",
   },
 ];
 
@@ -80,9 +80,9 @@ export default function Landing() {
       </nav>
 
       <section className="hero">
-        <span className="pill">● Camada de contexto governada para IA</span>
+        <span className="pill">● Contexto governado para IA</span>
         <h1>A IA da sua empresa, com o contexto certo, para a pessoa certa.</h1>
-        <p>O Intra AI Hub organiza documentos, código, MDs, APIs e decisões dos seus projetos e entrega esse contexto a agentes de IA, com fontes, permissões e auditoria. Times internos e terceiros ficam produtivos desde o primeiro dia, com segurança.</p>
+        <p>O Contexa organiza documentos, código, MDs, APIs e decisões dos seus projetos e entrega esse contexto a agentes de IA, com fontes, permissões e auditoria. Times internos e terceiros ficam produtivos desde o primeiro dia, com segurança.</p>
         <div className="row row-wrap" style={{ justifyContent: "center" }}>
           <Link className="btn btn-primary" href="/signup">Testar grátis por 14 dias</Link>
           <a className="btn lp-ghost" href="#como-funciona">Ver como funciona</a>
@@ -182,7 +182,7 @@ export default function Landing() {
         <h2 className="lp-title">Pronto para dar contexto à IA da sua empresa?</h2>
         <div className="row row-wrap" style={{ justifyContent: "center" }}>
           <Link className="btn btn-primary" href="/signup">Criar conta grátis</Link>
-          <a className="btn lp-ghost" href="mailto:contato@autyma.com.br?subject=Demonstra%C3%A7%C3%A3o%20Intra%20AI%20Hub">Agendar demonstração</a>
+          <a className="btn lp-ghost" href="mailto:contato@autyma.com.br?subject=Demonstra%C3%A7%C3%A3o%20Contexa">Agendar demonstração</a>
         </div>
       </section>
 
