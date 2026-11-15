@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getAIForOrg, AIConfigError, AIProviderError } from "@/services/ai/provider";
-import { indexSource } from "@/services/rag/indexer";
-import { handoffPrompt, parseHandoff, HANDOFF_SECTIONS } from "@/lib/handoff";
+import { approveDraft, createDraft } from "@/services/handoff";
+import { handoffPrompt, HANDOFF_SECTIONS } from "@/lib/handoff";
 import { sourceLabel } from "@/components/icons";
 
 /**
@@ -50,7 +50,7 @@ const TOOLS = [
   },
   {
     name: "importar_para_o_nexo",
-    description: "Importa ESTA conversa (ou o projeto atual da IA) para um projeto do Nexo. ANTES de chamar, pergunte ao usuário o que importar: (1) o resumo em .md no formato de modelo_de_handoff, (2) a conversa completa, ou (3) os dois. Nunca inclua senhas, chaves ou dados pessoais sensíveis. O conteúdo vira fonte indexada; o resumo pode preencher a ficha do projeto (só campos vazios).",
+    description: "Envia ESTA conversa (ou o projeto atual da IA) para um projeto do Nexo como RASCUNHO, que o administrador do projeto aprova antes de virar contexto oficial. ANTES de chamar, pergunte ao usuário o que enviar: (1) o resumo em .md no formato de modelo_de_handoff, (2) a conversa completa, ou (3) os dois. Nunca inclua senhas, chaves ou dados pessoais sensíveis.",
     inputSchema: {
       type: "object",
       properties: {
@@ -59,9 +59,31 @@ const TOOLS = [
         resumo_md: { type: "string", description: "Handoff em Markdown com os títulos ## do modelo_de_handoff" },
         conversa_completa: { type: "string", description: "Transcrição da conversa (Usuário: … / IA: …)" },
         origem: { type: "string", enum: ORIGINS, description: "De qual IA vem o conteúdo" },
-        preencher_ficha: { type: "boolean", description: "Preencher campos vazios da ficha com o resumo (só administradores)" },
+        preencher_ficha: { type: "boolean", description: "Ao aprovar, preencher campos vazios da ficha com o resumo" },
+        aprovar_agora: { type: "boolean", description: "Só administradores: aprovar na hora (sem revisão)" },
       },
       required: ["projeto", "titulo"], additionalProperties: false,
+    },
+  },
+  {
+    name: "handoff_atual",
+    description: "Mostra a versão vigente (aprovada) do handoff do projeto, com o id da versão. Use antes de atualizar_handoff.",
+    inputSchema: { type: "object", properties: { projeto: { type: "string" } }, required: ["projeto"], additionalProperties: false },
+  },
+  {
+    name: "atualizar_handoff",
+    description: "Envia uma NOVA VERSÃO do handoff do projeto (rascunho para aprovação). Passo a passo: chame handoff_atual, revise o texto com o que mudou nesta conversa (decisões, estado atual, próximos passos, pendências), mostre ao usuário e envie com versao_base_id = id da versão vigente. Se o handoff vigente mudou nesse meio-tempo, retorna conflito.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        projeto: { type: "string" },
+        resumo_md: { type: "string", description: "Handoff completo revisado, em Markdown com os títulos ##" },
+        versao_base_id: { type: "string", description: "id da versão vigente retornado por handoff_atual (vazio se for o primeiro)" },
+        titulo: { type: "string", description: "Ex.: 'Atualização de 15/11 — API de pagamentos'" },
+        origem: { type: "string", enum: ORIGINS },
+        aprovar_agora: { type: "boolean", description: "Só administradores: aprovar na hora" },
+      },
+      required: ["projeto", "resumo_md"], additionalProperties: false,
     },
   },
 ];
@@ -138,39 +160,47 @@ async function callTool(admin: Admin, userId: string, name: string, args: Record
     }
   }
 
-  if (name === "importar_para_o_nexo") {
+  if (name === "handoff_atual") {
+    const { data } = await admin.rpc("mcp_handoff_current", { p_user: userId, p_project: proj.id });
+    const h = data as { id?: string; version_no?: number; title?: string; content_md?: string; approved_at?: string } | null;
+    if (!h?.id) return text(`O projeto "${proj.name}" ainda não tem handoff aprovado. Para criar o primeiro, use modelo_de_handoff e depois atualizar_handoff.`);
+    return text(`Handoff vigente de "${proj.name}" — versão ${h.version_no} (id: ${h.id}), aprovada em ${h.approved_at ? new Date(h.approved_at).toLocaleString("pt-BR") : "—"}.\n\n${h.content_md}\n\nPara atualizar, envie a versão revisada com atualizar_handoff informando versao_base_id = ${h.id}.`);
+  }
+
+  if (name === "importar_para_o_nexo" || name === "atualizar_handoff") {
     const { data: perms } = await admin.rpc("mcp_perms", { p_user: userId, p_project: proj.id });
     const pm = perms as { write: boolean; manage: boolean } | null;
-    if (!pm?.write) return text("Seu perfil neste projeto só permite consulta; peça permissão de colaborador para importar.", true);
-    const title = String(args.titulo ?? "").trim().slice(0, 150) || "Conversa importada";
+    if (!pm?.write) return text("Seu perfil neste projeto só permite consulta; peça permissão de colaborador para enviar handoffs.", true);
+    const isUpdate = name === "atualizar_handoff";
+    const title = String(args.titulo ?? (isUpdate ? "Atualização do handoff" : "")).trim().slice(0, 150) || "Conversa importada";
     const resumo = typeof args.resumo_md === "string" ? args.resumo_md.trim() : "";
     const completa = typeof args.conversa_completa === "string" ? args.conversa_completa.trim() : "";
-    if (!resumo && !completa) return text("Envie o resumo_md, a conversa_completa ou os dois.", true);
+    if (!resumo && !completa) return text(isUpdate ? "Envie o resumo_md atualizado." : "Envie o resumo_md, a conversa_completa ou os dois.", true);
     if (resumo.length > 200_000 || completa.length > 400_000) return text("Conteúdo grande demais (resumo até 200 mil e conversa até 400 mil caracteres).", true);
     const origin = ORIGINS.includes(String(args.origem)) ? String(args.origem) : "outra";
-    const done: string[] = [];
-    for (const [kind, body] of [["resumo", resumo], ["conversa", completa]] as const) {
-      if (!body) continue;
-      const { data: src, error } = await admin.from("knowledge_sources").insert({
-        project_id: proj.id, name: `${kind === "resumo" ? "Resumo" : "Conversa"}: ${title}`, source_type: "text",
-        category: kind === "resumo" ? "handoff" : "conversas", raw_text: body, origin, created_by: userId,
-      }).select("id").single();
-      if (error || !src) return text("Não foi possível salvar no Nexo.", true);
-      const r = await indexSource("trusted", src.id);
-      done.push(r.ok ? `${kind === "resumo" ? "resumo indexado" : "conversa indexada"} em ${r.chunks} trechos` : `${kind === "resumo" ? "resumo salvo" : "conversa salva"}, mas a indexação falhou: ${r.error}`);
-    }
-    if (resumo && args.preencher_ficha && pm.manage) {
-      const parsed = parseHandoff(resumo);
-      const { data: brief } = await admin.from("project_briefs").select("*").eq("project_id", proj.id).maybeSingle();
-      const patch: Record<string, string> = {};
-      for (const [k, v] of Object.entries(parsed)) if (v && !(brief as Record<string, unknown> | null)?.[k]) patch[k] = v;
-      if (Object.keys(patch).length) {
-        await admin.from("project_briefs").upsert({ ...patch, project_id: proj.id, updated_by: userId }, { onConflict: "project_id" });
-        done.push(`ficha: ${Object.keys(patch).length} campo(s) preenchido(s)`);
+
+    // Conflito: a atualização foi feita em cima de uma versão que já não é a vigente
+    const { data: cur } = await admin.from("projects").select("current_handoff_id").eq("id", proj.id).single();
+    const currentId = (cur?.current_handoff_id as string | null) ?? null;
+    const baseId = typeof args.versao_base_id === "string" ? args.versao_base_id : (isUpdate ? null : currentId);
+    if (isUpdate && currentId && baseId !== currentId)
+      return text(`Conflito: o handoff vigente mudou (versão atual id ${currentId}). Chame handoff_atual, incorpore as mudanças e envie de novo com versao_base_id = ${currentId}.`, true);
+
+    try {
+      const d = await createDraft(admin, {
+        projectId: proj.id, authorId: userId, title, contentMd: resumo, transcript: completa || null,
+        source: "mcp", origin, fillBrief: Boolean(args.preencher_ficha), baseVersionId: baseId,
+      });
+      await audit(admin, userId, proj, isUpdate ? "mcp_update_handoff" : "mcp_import", { title, origin, version: d.version_no });
+      if (args.aprovar_agora && pm.manage) {
+        const r = await approveDraft(d.id, userId, { fillBrief: Boolean(args.preencher_ficha) });
+        return text(`Versão ${r.version} criada e aprovada (você é administrador) em "${proj.name}": ${r.summary}.`);
       }
+      return text(`Enviado para "${proj.name}" como RASCUNHO v${d.version_no}. ${pm.manage ? "Revise e aprove no Nexo → Handoffs (ou chame de novo com aprovar_agora = true)." : "O administrador do projeto vai revisar e aprovar; só depois vira contexto oficial."}`);
+    } catch (e) {
+      console.error("[mcp] draft", e);
+      return text("Não foi possível salvar no Nexo.", true);
     }
-    await audit(admin, userId, proj, "mcp_import", { title, origin });
-    return text(`Importado para "${proj.name}": ${done.join("; ")}.`);
   }
 
   return text(`Ferramenta desconhecida: ${name}`, true);
@@ -188,7 +218,7 @@ async function handle(admin: Admin, userId: string, msg: Rpc) {
       return ok(msg.id, {
         protocolVersion: v, capabilities: { tools: { listChanged: false } },
         serverInfo: { name: "nexo", title: "Nexo · contexto de projetos", version: "1.0.0" },
-        instructions: "Nexo é o hub de contexto dos projetos do usuário. Use listar_projetos, ficha_do_projeto e buscar_contexto para responder com base no projeto, e importar_para_o_nexo (após perguntar ao usuário: resumo, conversa completa ou os dois) para salvar esta conversa no projeto.",
+        instructions: "Nexo é o hub de contexto dos projetos do usuário. Use listar_projetos, ficha_do_projeto e buscar_contexto para responder com base no projeto. Para levar esta conversa ao Nexo use importar_para_o_nexo (após perguntar: resumo, conversa completa ou os dois); para manter o handoff do projeto em dia use handoff_atual e atualizar_handoff. Envios viram rascunho para aprovação do administrador.",
       });
     }
     case "ping": return ok(msg.id, {});

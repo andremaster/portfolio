@@ -5,7 +5,7 @@ import { getContext } from "@/lib/context";
 import { indexSource } from "@/services/rag/indexer";
 import type { ActionState } from "./types";
 import { FUNCTIONS, type MemberFunction } from "@/lib/functions";
-import { parseHandoff } from "@/lib/handoff";
+import { createDraft } from "@/services/handoff";
 
 const ORIGINS = ["chatgpt", "claude", "gemini", "copilot", "outra"] as const;
 const ORIGIN_LABEL: Record<(typeof ORIGINS)[number], string> = { chatgpt: "ChatGPT", claude: "Claude", gemini: "Gemini", copilot: "Copilot", outra: "outra IA" };
@@ -21,30 +21,21 @@ export async function importHandoff(_: ActionState, form: FormData): Promise<Act
   const originRaw = String(form.get("origin") ?? "outra");
   const origin = (ORIGINS as readonly string[]).includes(originRaw) ? (originRaw as (typeof ORIGINS)[number]) : "outra";
 
-  const name = `Handoff do ${ORIGIN_LABEL[origin]} — ${new Date().toLocaleDateString("pt-BR")}`;
-  const { data: source, error } = await ctx.supabase.from("knowledge_sources").insert({
-    project_id: ctx.project.id, name, source_type: "text", category: "handoff",
-    raw_text: text, origin, created_by: ctx.user.id,
-  }).select("id").single();
-  if (error || !source) return { error: "Não foi possível salvar o handoff." };
-
-  let briefMsg = "";
-  if (form.get("fill_brief") === "on" && ctx.canManage) {
-    const parsed = parseHandoff(text);
-    const { data: brief } = await ctx.supabase.from("project_briefs").select("*").eq("project_id", ctx.project.id).maybeSingle();
-    const patch: Record<string, string> = {};
-    for (const [k, v] of Object.entries(parsed)) if (v && !(brief as Record<string, unknown> | null)?.[k]) patch[k] = v;
-    if (Object.keys(patch).length) {
-      await ctx.supabase.from("project_briefs").upsert({ ...patch, project_id: ctx.project.id, updated_by: ctx.user.id }, { onConflict: "project_id" });
-      briefMsg = ` Ficha: ${Object.keys(patch).length} campo(s) preenchido(s).`;
-      revalidatePath("/brief");
-    }
+  // Entra como RASCUNHO: só vira fonte oficial depois que um administrador aprovar.
+  const title = `Handoff do ${ORIGIN_LABEL[origin]} — ${new Date().toLocaleDateString("pt-BR")}`;
+  const { data: cur } = await ctx.supabase.from("projects").select("current_handoff_id").eq("id", ctx.project.id).maybeSingle();
+  try {
+    const d = await createDraft(ctx.supabase, {
+      projectId: ctx.project.id, authorId: ctx.user.id, title, contentMd: text, source: "ui", origin,
+      fillBrief: form.get("fill_brief") === "on", baseVersionId: (cur?.current_handoff_id as string | null) ?? null,
+    });
+    revalidatePath("/handoff");
+    return { ok: ctx.canManage
+      ? `Rascunho v${d.version_no} criado. Revise e aprove em “Handoffs”.`
+      : `Rascunho v${d.version_no} enviado para aprovação do administrador do projeto.` };
+  } catch {
+    return { error: "Não foi possível salvar o handoff." };
   }
-
-  const r = await indexSource(ctx.supabase, source.id);
-  revalidatePath("/knowledge");
-  revalidatePath("/dashboard");
-  return r.ok ? { ok: `Handoff importado e indexado em ${r.chunks} trechos.${briefMsg}` } : { error: `Handoff salvo, mas a indexação falhou: ${r.error}` };
 }
 
 const TYPES = ["document", "code", "url", "image", "diagram", "decision", "manual", "api_spec", "text"] as const;

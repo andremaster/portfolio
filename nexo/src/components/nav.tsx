@@ -10,6 +10,7 @@ const NAV: { href: string; label: string; short: string; icon: IconName; mobile?
   { href: "/dashboard", label: "Dashboard", short: "Início", icon: "dashboard", mobile: true },
   { href: "/brief", label: "Ficha do projeto", short: "Ficha", icon: "decision" },
   { href: "/knowledge", label: "Base de conhecimento", short: "Base", icon: "book", mobile: true },
+  { href: "/handoff", label: "Handoffs", short: "Handoffs", icon: "refresh" },
   { href: "/chat", label: "Chat com agentes", short: "Chat", icon: "chat", mobile: true },
   { href: "/agents", label: "Agentes", short: "Agentes", icon: "bot", mobile: true },
   { href: "/team", label: "Equipe e acessos", short: "Equipe", icon: "users", mobile: true, internal: true },

@@ -452,3 +452,11 @@ dialog.sheet::backdrop { background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
 .logo-anim:hover .nx-right { transform: translateX(-4px); }
 .logo-anim:active { transform: rotate(90deg) scale(.96); }
 @media (prefers-reduced-motion: reduce) { .logo-anim, .logo-anim .nx-bar { transition: none; } .logo-anim:hover { transform: none; } }
+
+/* Diferenças entre versões do handoff */
+.diff { font-family: var(--mono); font-size: .8rem; border: 1px solid var(--border); border-radius: 10px; overflow: auto; max-height: 560px; background: #0f141a; }
+.diff-line { white-space: pre-wrap; word-break: break-word; padding: 1px 10px; display: flex; gap: 10px; }
+.diff-line > span { color: var(--muted); user-select: none; flex: none; width: 10px; }
+.diff-add { background: rgba(52, 211, 153, .12); color: #bbf7d0; }
+.diff-del { background: rgba(248, 113, 113, .12); color: #fecaca; text-decoration: line-through; text-decoration-color: rgba(248,113,113,.4); }
+.diff-gap { display: block; width: 100%; text-align: left; padding: 4px 10px; background: var(--surface-2); border: 0; color: var(--muted); cursor: pointer; font: inherit; }
