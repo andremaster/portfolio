@@ -1,6 +1,6 @@
-# Sobe o HubContext no servidor. Segredos ficam no arquivo .env (fora do Git).
+# Sobe o Nexo no servidor. Segredos ficam no arquivo .env (fora do Git).
 services:
-  hubcontext:
+  nexo:
     build:
       context: .
       args:

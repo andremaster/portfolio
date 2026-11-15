@@ -7,18 +7,18 @@
 
 ## 2. Aplicação
 ```bash
-git clone <repo> && cd hubcontext
+git clone <repo> && cd nexo
 cp .env.example .env      # preencha; nunca commitar
 docker compose up -d --build
 ```
 
 ## 3. HTTPS (Caddy, exemplo)
 ```
-hubcontext.autyma.com.br {
+hub.autyma.com.br {
   reverse_proxy 127.0.0.1:3000
 }
 ```
-Em Supabase → Auth → URL Configuration: Site URL e Redirect `https://hubcontext.autyma.com.br/auth/callback`.
+Em Supabase → Auth → URL Configuration: Site URL e Redirect `https://hub.autyma.com.br/auth/callback`.
 
 ## 4. Atualizar
 ```bash

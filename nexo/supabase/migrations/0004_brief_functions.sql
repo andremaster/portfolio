@@ -1,4 +1,4 @@
--- HubContext — ficha do projeto e perfis por função
+-- Nexo — ficha do projeto e perfis por função
 
 -- Função de cada pessoa no projeto (diferente do papel de permissão)
 create type public.member_function as enum (

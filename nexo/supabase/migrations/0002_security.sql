@@ -1,4 +1,4 @@
--- HubContext — funções de permissão, RLS, busca vetorial e auditoria
+-- Nexo — funções de permissão, RLS, busca vetorial e auditoria
 
 -- Helpers (security definer evita recursão de RLS) --------------------------
 create or replace function public.org_role_of(p_org uuid) returns public.org_role

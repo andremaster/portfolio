@@ -1,4 +1,4 @@
--- HubContext — IA da própria empresa (BYOK)
+-- Nexo — IA da própria empresa (BYOK)
 -- Cada organização conecta a sua IA (chave, endereço e modelo). As chaves ficam no
 -- Supabase Vault (criptografadas); a tabela guarda só o id do segredo e uma dica (últimos 4).
 
@@ -34,7 +34,7 @@ declare v_id uuid;
 begin
   select id into v_id from vault.secrets where name = p_name;
   if v_id is null then
-    v_id := vault.create_secret(p_secret, p_name, 'HubContext: chave de IA da organização');
+    v_id := vault.create_secret(p_secret, p_name, 'Nexo: chave de IA da organização');
   else
     perform vault.update_secret(v_id, p_secret);
   end if;

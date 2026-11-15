@@ -1,15 +1,15 @@
-name: hubcontext
+name: nexo
 on:
-  push: { paths: ["hubcontext/**"] }
-  pull_request: { paths: ["hubcontext/**"] }
+  push: { paths: ["nexo/**"] }
+  pull_request: { paths: ["nexo/**"] }
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: hubcontext } }
+    defaults: { run: { working-directory: nexo } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm, cache-dependency-path: hubcontext/package-lock.json }
+        with: { node-version: 22, cache: npm, cache-dependency-path: nexo/package-lock.json }
       - run: npm ci
       - run: npm test
       - run: npm run build
@@ -19,4 +19,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y postgresql-16 postgresql-16-pgvector
-      - run: sudo -E bash hubcontext/tests/sql/run.sh
+      - run: sudo -E bash nexo/tests/sql/run.sh

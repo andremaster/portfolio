@@ -1,4 +1,4 @@
--- HubContext — núcleo multi-tenant
+-- Nexo — núcleo multi-tenant
 create extension if not exists "pgcrypto";
 create extension if not exists vector with schema extensions;
 

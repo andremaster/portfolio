@@ -1,4 +1,4 @@
-# HubContext · Autyma
+# Nexo · Autyma
 
 A memória técnica dos projetos de IA de uma empresa. Agentes especializados respondem com **RAG** sobre documentos, código, APIs e decisões técnicas, **citando as fontes** e **respeitando as permissões** de cada pessoa, inclusive de terceiros.
 
@@ -25,7 +25,7 @@ Next.js 15 (App Router, TypeScript) · Supabase (Postgres + pgvector, Auth, Stor
 
 ### 3. Vercel
 1. **Add New → Project** e importe o repositório.
-2. **Root Directory:** `hubcontext`.
+2. **Root Directory:** `nexo`.
 3. Em **Environment Variables**, preencha as variáveis do `.env.example`. `NEXT_PUBLIC_APP_URL` deve ser a URL final.
 4. Clique em **Deploy**. Para ambientes separados, use outro projeto Supabase e as variáveis por ambiente da Vercel (Preview × Production).
 

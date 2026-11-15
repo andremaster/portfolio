@@ -1,4 +1,4 @@
--- HubContext — Storage privado e controle de uso
+-- Nexo — Storage privado e controle de uso
 
 -- Bucket privado. Caminho: {project_id}/{source_id}/{arquivo}
 insert into storage.buckets (id, name, public, file_size_limit)

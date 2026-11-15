@@ -84,9 +84,9 @@ export async function saveAISettings(_: ActionState, form: FormData): Promise<Ac
     return data as string;
   };
   try {
-    const chatSecret = f.chat_key ? await put(`hubcontext-ai-${ctx.org.id}-chat`, f.chat_key) : (current?.chat_secret_id ?? null);
+    const chatSecret = f.chat_key ? await put(`nexo-ai-${ctx.org.id}-chat`, f.chat_key) : (current?.chat_secret_id ?? null);
     const embedSecret = f.embed_mode === "separate"
-      ? (f.embed_key ? await put(`hubcontext-ai-${ctx.org.id}-embed`, f.embed_key) : (current?.embed_secret_id ?? null))
+      ? (f.embed_key ? await put(`nexo-ai-${ctx.org.id}-embed`, f.embed_key) : (current?.embed_secret_id ?? null))
       : null;
     const row = {
       organization_id: ctx.org.id,
