@@ -69,3 +69,27 @@ export async function setProjectAI(connectionId: string | null): Promise<ActionS
   revalidatePath("/minhas-ias");
   return error ? { error: "Não foi possível salvar a escolha." } : { ok: "IA do projeto atualizada." };
 }
+
+/** Gera o endereço pessoal do conector MCP. O token só é mostrado uma vez (guardamos o hash). */
+export async function createMcpToken(label: string): Promise<{ url?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Sessão expirada." };
+  const { randomBytes, createHash } = await import("node:crypto");
+  const token = randomBytes(32).toString("base64url");
+  const admin = createAdminClient();
+  const { error } = await admin.from("mcp_tokens").insert({
+    user_id: user.id, token_hash: createHash("sha256").update(token).digest("hex"), label: label.trim().slice(0, 60) || "Conector",
+  });
+  if (error) return { error: "Não foi possível gerar o conector." };
+  revalidatePath("/minhas-ias");
+  const { env } = await import("@/lib/env");
+  return { url: `${env.appUrl()}/api/mcp/${token}` };
+}
+
+export async function revokeMcpToken(id: string): Promise<ActionState> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("mcp_tokens").update({ revoked: true }).eq("id", id).select("id");
+  revalidatePath("/minhas-ias");
+  return error || !data?.length ? { error: "Não foi possível revogar." } : { ok: "Conector revogado." };
+}

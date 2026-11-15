@@ -13,16 +13,20 @@ export type IndexResult = { ok: true; chunks: number } | { ok: false; error: str
  * Indexa uma fonte. A permissão é validada com o cliente do usuário (RLS);
  * só depois o cliente admin grava chunks e embeddings.
  */
-export async function indexSource(userClient: SupabaseClient, sourceId: string): Promise<IndexResult> {
-  const { data: source, error } = await userClient
+export async function indexSource(userClient: SupabaseClient | "trusted", sourceId: string): Promise<IndexResult> {
+  // "trusted": a permissão já foi validada pelo chamador no servidor (ex.: conector MCP)
+  const reader = userClient === "trusted" ? createAdminClient() : userClient;
+  const { data: source, error } = await reader
     .from("knowledge_sources")
     .select("id, project_id, name, source_type, category, storage_path, source_url, raw_text")
     .eq("id", sourceId)
     .single();
   if (error || !source) return { ok: false, error: "Fonte não encontrada ou sem permissão." };
 
-  const { data: canWrite } = await userClient.rpc("can_write_project", { p_project: source.project_id });
-  if (!canWrite) return { ok: false, error: "Sem permissão para indexar neste projeto." };
+  if (userClient !== "trusted") {
+    const { data: canWrite } = await userClient.rpc("can_write_project", { p_project: source.project_id });
+    if (!canWrite) return { ok: false, error: "Sem permissão para indexar neste projeto." };
+  }
 
   const admin = createAdminClient();
   await admin.from("knowledge_sources").update({ status: "processing", error_message: null }).eq("id", sourceId);

@@ -5,6 +5,7 @@ import { Empty, NoProject } from "@/components/empty";
 import { timeAgo } from "@/lib/format";
 import { AddSource, HandoffImport, ReindexAll, SourceActions } from "./client";
 import { handoffPrompt } from "@/lib/handoff";
+import { ExportImport } from "./export-import";
 import { functionLabel, type MemberFunction } from "@/lib/functions";
 
 export const metadata = { title: "Base de conhecimento" };
@@ -45,6 +46,7 @@ export default async function Knowledge({ searchParams }: { searchParams: Promis
           <a className="btn btn-ghost" href="/api/handoff" title="Baixa o contexto em Markdown para usar no ChatGPT, Claude ou Gemini"><Icon name="download" size={16} /> Levar para minha IA</a>
           {ctx.canWrite && <ReindexAll />}
           {ctx.canWrite && <HandoffImport prompt={handoffPrompt(ctx.project.name)} canManage={ctx.canManage} />}
+          {ctx.canWrite && <ExportImport />}
           {ctx.canWrite && <AddSource categories={categories} autoOpen={sp.add === "1"} />}
         </div>
       </div>

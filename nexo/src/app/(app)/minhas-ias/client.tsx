@@ -32,7 +32,12 @@ export function AddConnection() {
       </div>
       <label className="field"><span>Chave de API</span>
         <input className="input" name="api_key" type="password" autoComplete="off" placeholder={provider === "custom" ? "Opcional para IA própria" : "Cole a sua chave"} />
-        {p.keyUrl && <small>Crie em <a href={p.keyUrl} target="_blank" rel="noopener noreferrer">{new URL(p.keyUrl).host}</a>. Fica criptografada; ninguém do projeto vê.</small>}
+        {p.keyUrl && (
+          <div className="row row-wrap small" style={{ gap: 8 }}>
+            <a className="btn btn-sm" href={p.keyUrl} target="_blank" rel="noopener noreferrer">1. Abrir a página da chave ↗</a>
+            <span className="muted">2. Entre na sua conta e clique em criar chave · 3. Copie e cole aqui. Fica criptografada; ninguém do projeto vê.</span>
+          </div>
+        )}
       </label>
       <label className="field"><span>Nome (opcional)</span><input className="input" name="label" placeholder="Ex.: Meu Claude da empresa" /></label>
       <FormMessage state={state} />
