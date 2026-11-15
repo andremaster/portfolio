@@ -38,7 +38,7 @@ export default async function AISettingsPage() {
           <ol className="steps">
             <li><b>Chat</b> — responde as perguntas usando os trechos dos documentos. Pode ser Gemini, ChatGPT, Claude, DeepSeek, Kimi, Groq ou qualquer API compatível.</li>
             <li><b>Busca nos documentos (embeddings)</b> — transforma os documentos em vetores. Gemini e OpenAI fazem isso; Claude, DeepSeek e Kimi não, então use um segundo provedor só para isso.</li>
-            <li><b>Teste automático</b> — ao salvar, o HubContext faz uma pergunta e uma busca de teste. Nada é gravado se falhar.</li>
+            <li><b>Teste automático</b> — ao salvar, o Nexo faz uma pergunta e uma busca de teste. Nada é gravado se falhar.</li>
           </ol>
           <div className="tip">
             <b>Sem custo para começar:</b> o Google Gemini tem plano gratuito. Crie a chave em aistudio.google.com e use para chat e busca.

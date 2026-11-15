@@ -72,7 +72,7 @@ export async function saveAISettings(_: ActionState, form: FormData): Promise<Ac
   try {
     const r = await ai.chat([{ role: "user", content: "Responda apenas: ok" }], { temperature: 0 });
     if (!r.content) return { error: "A IA respondeu vazio. Confira o modelo de chat." };
-    await ai.embed(["teste de conexão HubContext"]);
+    await ai.embed(["teste de conexão Nexo"]);
   } catch (e) {
     return { error: e instanceof AIProviderError || e instanceof AIConfigError ? e.message : "Não foi possível falar com a IA." };
   }

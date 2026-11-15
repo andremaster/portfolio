@@ -38,7 +38,7 @@ export function buildSystemPrompt(
   const brief = briefToText(opts.brief ?? null);
   return `${agent.system_prompt.trim()}
 
-Você é o agente "${agent.name}" do projeto "${projectName}" no HubContext.
+Você é o agente "${agent.name}" do projeto "${projectName}" no Nexo.
 
 Quem pergunta: área de ${functionLabel[fn]}${opts.isExternal ? " (empresa terceira contratada)" : ""}.
 ${functionFocus[fn]}

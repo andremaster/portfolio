@@ -6,7 +6,7 @@ const sans = DM_Sans({ subsets: ["latin"], variable: "--font-sans", display: "sw
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  title: { default: "HubContext · Autyma", template: "%s · HubContext" },
+  title: { default: "Nexo · Autyma", template: "%s · Nexo" },
   description: "A memória técnica dos seus projetos de IA. Agentes especializados com RAG, controle de acesso e fontes rastreáveis — usando a IA que a sua empresa já tem.",
   icons: { icon: "/icon.svg" },
 };

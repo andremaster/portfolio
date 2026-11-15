@@ -1,4 +1,4 @@
-/** Handoff entre o HubContext e outras IAs (ChatGPT, Claude, Gemini, Copilot…). */
+/** Handoff entre o Nexo e outras IAs (ChatGPT, Claude, Gemini, Copilot…). */
 
 export const HANDOFF_SECTIONS = [
   ["objective", "Objetivo"],

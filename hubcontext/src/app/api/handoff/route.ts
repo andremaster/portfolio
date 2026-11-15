@@ -24,7 +24,7 @@ export async function GET() {
   const lines: string[] = [
     `# Contexto do projeto — ${p.name}`,
     "",
-    `> Exportado do HubContext em ${new Date().toLocaleString("pt-BR")}. Use como instrução/conhecimento do projeto na sua IA.`,
+    `> Exportado do Nexo em ${new Date().toLocaleString("pt-BR")}. Use como instrução/conhecimento do projeto na sua IA.`,
     "> Responda sempre com base neste contexto; quando algo não estiver aqui, diga que não sabe.",
     "",
   ];

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Brand, LogoSymbol } from "@/components/brand";
 
 export const metadata = {
-  title: "HubContext · A camada de contexto governada para IA nas empresas",
+  title: "Nexo · Hub de conectores de IA para projetos",
   description: "Organize documentos, código, MDs, APIs e decisões dos seus projetos. Agentes de IA respondem com fontes e respeitam quem pode ver o quê — inclusive terceiros.",
 };
 
@@ -55,14 +55,14 @@ const PLANS = [
   {
     name: "Enterprise", price: "Sob consulta", period: "", tag: "Para operação crítica",
     items: ["Projetos e usuários sob medida", "Implantação no seu Azure (tenant próprio)", "SSO Microsoft Entra ID*", "Integrações GitHub, Azure DevOps, SharePoint, Fabric*", "SLA e DPA/LGPD", "Gerente de sucesso dedicado"],
-    cta: "Falar com a Autyma", href: "mailto:contato@autyma.com.br?subject=HubContext%20Enterprise",
+    cta: "Falar com a Autyma", href: "mailto:contato@autyma.com.br?subject=Nexo%20Enterprise",
   },
 ];
 
 const FAQ = [
   ["Preciso pagar a IA à parte?", "Você usa a IA da sua própria conta (Gemini, OpenAI, Claude, DeepSeek, Kimi e outras compatíveis). O consumo é cobrado direto pelo provedor, sem markup. O Gemini tem plano gratuito para começar."],
   ["Meus dados são usados para treinar a IA?", "Depende do provedor e do plano que você conectar: APIs pagas da OpenAI, do Azure OpenAI e da Anthropic não treinam com os seus dados. Planos gratuitos podem usar os dados — para dados sensíveis, conecte um plano pago ou o seu tenant Azure."],
-  ["Consigo trazer um projeto que já está no ChatGPT ou no Claude?", "Sim. O HubContext gera o pedido de handoff; você roda na sua IA e cola a resposta. Ela vira fonte indexada e preenche a ficha do projeto. O caminho inverso também existe: exporte o contexto em Markdown para o projeto da sua IA."],
+  ["Consigo trazer um projeto que já está no ChatGPT ou no Claude?", "Sim. O Nexo gera o pedido de handoff; você roda na sua IA e cola a resposta. Ela vira fonte indexada e preenche a ficha do projeto. O caminho inverso também existe: exporte o contexto em Markdown para o projeto da sua IA."],
   ["O que é RAG e por que importa?", "RAG (Retrieval-Augmented Generation) faz a IA consultar os documentos do seu projeto antes de responder. Ela responde com base no que é real e mostra de onde tirou cada informação."],
   ["Um terceiro pode ver documentos que não deveria?", "Não. O controle é feito dentro do banco de dados: se a fonte não foi liberada para aquela pessoa, ela não aparece na lista nem é usada pela IA nas respostas para ela."],
   ["Preciso reorganizar toda a documentação antes?", "Não. Comece com o que existe, como READMEs, ADRs, PDFs e páginas da wiki. O painel de saúde do conhecimento mostra o que falta e o que deu erro."],
@@ -105,7 +105,7 @@ export default function Landing() {
         <div className="feature" style={{ textAlign: "center", justifyItems: "center", padding: "32px 24px" }}>
           <span className="pill">✦ Traga a sua IA</span>
           <h2 className="lp-title" style={{ marginBottom: 0 }}>Use a IA que a sua empresa <span className="grad-text">já paga</span></h2>
-          <p className="lp-lead" style={{ margin: "0 auto" }}>Conecte a sua chave e o HubContext responde com ela: o custo de IA fica na sua conta, sem markup. Já tem o projeto numa conversa do ChatGPT ou do Claude? Gere um handoff lá e importe aqui em um clique — e leve o contexto de volta quando quiser.</p>
+          <p className="lp-lead" style={{ margin: "0 auto" }}>Conecte a sua chave e o Nexo responde com ela: o custo de IA fica na sua conta, sem markup. Já tem o projeto numa conversa do ChatGPT ou do Claude? Gere um handoff lá e importe aqui em um clique — e leve o contexto de volta quando quiser.</p>
           <div className="lp-byo">{["Google Gemini", "ChatGPT / OpenAI", "Claude", "DeepSeek", "Kimi", "Groq", "OpenRouter", "Azure / Ollama"].map((n) => <span key={n}>{n}</span>)}</div>
         </div>
       </section>
@@ -196,7 +196,7 @@ export default function Landing() {
         <h2 className="lp-title">Pronto para dar contexto à IA da sua empresa?</h2>
         <div className="row row-wrap" style={{ justifyContent: "center" }}>
           <Link className="btn btn-primary" href="/signup">Criar conta grátis</Link>
-          <a className="btn lp-ghost" href="mailto:contato@autyma.com.br?subject=Demonstra%C3%A7%C3%A3o%20HubContext">Agendar demonstração</a>
+          <a className="btn lp-ghost" href="mailto:contato@autyma.com.br?subject=Demonstra%C3%A7%C3%A3o%20Nexo">Agendar demonstração</a>
         </div>
       </section>
 

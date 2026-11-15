@@ -1,5 +1,5 @@
 /**
- * Marca do HubContext — "Convergência Radial": quatro barras arredondadas apontam para o centro
+ * Marca do Nexo — "Convergência Radial": quatro barras arredondadas apontam para o centro
  * sem se tocar (várias IAs e fontes convergindo em um único projeto). Azul com brilho suave.
  */
 const BARS = [
@@ -53,7 +53,7 @@ export function Brand({ sub = "by Autyma" }: { sub?: string }) {
   return (
     <div className="brand">
       <LogoSymbol size={30} />
-      <div><b>HubContext</b><small>{sub}</small></div>
+      <div><b>Nexo</b><small>{sub}</small></div>
     </div>
   );
 }

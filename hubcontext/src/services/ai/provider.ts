@@ -24,7 +24,7 @@ type Endpoint = { provider: string; client: OpenAI; model: string };
 function fitDimensions(v: number[]): number[] {
   if (v.length === EMBEDDING_DIMENSIONS) return v;
   if (v.length < EMBEDDING_DIMENSIONS)
-    throw new AIProviderError(`O modelo de embeddings gera ${v.length} dimensões; o HubContext precisa de pelo menos ${EMBEDDING_DIMENSIONS}. Escolha outro modelo (ex.: gemini-embedding-001 ou text-embedding-3-small).`);
+    throw new AIProviderError(`O modelo de embeddings gera ${v.length} dimensões; o Nexo precisa de pelo menos ${EMBEDDING_DIMENSIONS}. Escolha outro modelo (ex.: gemini-embedding-001 ou text-embedding-3-small).`);
   const cut = v.slice(0, EMBEDDING_DIMENSIONS);
   const norm = Math.sqrt(cut.reduce((s, x) => s + x * x, 0)) || 1;
   return cut.map((x) => x / norm);
