@@ -10,30 +10,17 @@ const BARS = [
   { x: 36.95, y: 28.305, w: 21.05, h: 7.39 }, // direita
 ];
 
-/** Barras com metal escovado: faixas claras e escuras alternadas, borda fina para definição. */
-function Bars({ id }: { id: string }) {
+/** Logo oficial (nexo-logo.svg): barras lisas em azul #1D4ED8. */
+const BLUE = "#1D4ED8";
+function Bars({ id: _id }: { id: string }) {
   return (
     <>
-      <defs>
-        {/* cilindro metálico: atravessa o lado curto de cada barra */}
-        <linearGradient id={`${id}-v`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#9aa5b0" /><stop offset=".28" stopColor="#ffffff" /><stop offset=".5" stopColor="#c9d1d8" />
-          <stop offset=".78" stopColor="#5f6973" /><stop offset="1" stopColor="#b7c0c9" />
-        </linearGradient>
-        <linearGradient id={`${id}-h`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#9aa5b0" /><stop offset=".28" stopColor="#ffffff" /><stop offset=".5" stopColor="#c9d1d8" />
-          <stop offset=".78" stopColor="#5f6973" /><stop offset="1" stopColor="#b7c0c9" />
-        </linearGradient>
-      </defs>
-      {BARS.map((b, i) => (
-        <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx="2.956"
-          fill={`url(#${id}-${b.h > b.w ? "h" : "v"})`} stroke="rgba(0,0,0,.35)" strokeWidth=".5" />
-      ))}
+      {BARS.map((b, i) => <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx="2.956" fill={BLUE} />)}
     </>
   );
 }
 
-/** Símbolo livre (cromado). */
+/** Símbolo livre (azul). */
 export function LogoSymbol({ size = 30 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="logo-symbol">
@@ -42,11 +29,11 @@ export function LogoSymbol({ size = 30 }: { size?: number }) {
   );
 }
 
-/** Ícone de app: squircle grafite com o símbolo cromado. */
+/** Ícone de app: squircle branco com o símbolo azul (como a arte oficial). */
 export function LogoMark({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="logo-mark">
-      <rect width="64" height="64" rx="16" fill="#141a21" stroke="rgba(255,255,255,.12)" />
+      <rect width="64" height="64" rx="16" fill="#ffffff" />
       <g transform="translate(9.6 9.6) scale(.7)"><Bars id={`nxm${size}`} /></g>
     </svg>
   );

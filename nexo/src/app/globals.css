@@ -11,10 +11,10 @@
   --text: #e9eef3;
   --muted: #8b98a5;
   --ink: #e9eef3;
-  --primary: #22d3ee;
-  --primary-2: #22d3ee;
+  --primary: #3b82f6;
+  --primary-2: #3b82f6;
   --primary-ink: #0b0f14;
-  --primary-soft: rgba(34, 211, 238, .12);
+  --primary-soft: rgba(59, 130, 246, .14);
   --accent: #34d399;
   --accent-soft: rgba(52, 211, 153, .12);
   --warn: #fbbf24;
@@ -308,7 +308,7 @@ dialog.sheet::backdrop { background: rgba(10, 12, 30, .5); backdrop-filter: blur
 body { background: var(--bg); background-image: radial-gradient(1100px 520px at 55% -8%, rgba(46, 86, 104, .55), transparent 70%), radial-gradient(700px 400px at 100% 0%, rgba(34, 211, 238, .06), transparent 70%); background-attachment: fixed; }
 h1, h2, h3, .lp-title, .lp-price { font-family: var(--display); letter-spacing: -.02em; font-weight: 600; color: var(--text); }
 h1 b, .lp-title b { font-weight: 800; }
-::selection { background: rgba(34,211,238,.35); color: #fff; }
+::selection { background: rgba(59,130,246,.35); color: #fff; }
 * { scrollbar-width: thin; scrollbar-color: #2a333d transparent; }
 .mono, .badge, .eyebrow, .table th { font-family: var(--mono); }
 
@@ -322,7 +322,7 @@ h1 b, .lp-title b { font-weight: 800; }
 .brand b { font-family: var(--display); font-size: 1.12rem; font-weight: 700; letter-spacing: -.02em; color: var(--text); font-style: italic; }
 .brand small { color: var(--muted); font-family: var(--mono); letter-spacing: .02em; text-transform: none; font-size: .7rem; font-style: normal; }
 .logo-symbol, .logo-mark { flex: none; filter: drop-shadow(0 2px 6px rgba(0,0,0,.6)); }
-.hero .logo-symbol { filter: drop-shadow(0 18px 30px rgba(0,0,0,.7)) drop-shadow(0 0 24px rgba(34,211,238,.15)); }
+.hero .logo-symbol { filter: drop-shadow(0 18px 30px rgba(0,0,0,.7)) drop-shadow(0 0 24px rgba(29,78,216,.25)); }
 
 /* Cartões */
 .card { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--radius); transition: border-color .15s, background .15s; }
@@ -342,7 +342,7 @@ a.card:hover, .agent-card:hover { border-color: var(--border-strong); background
 /* Campos */
 .input, .select, .textarea { background: #0f141a; border: 1px solid var(--border); border-radius: 10px; color: var(--text); }
 .input::placeholder, .textarea::placeholder { color: #5f6b77; }
-.input:focus, .select:focus, .textarea:focus { border-color: rgba(34,211,238,.6); box-shadow: 0 0 0 3px rgba(34,211,238,.12); }
+.input:focus, .select:focus, .textarea:focus { border-color: rgba(59,130,246,.65); box-shadow: 0 0 0 3px rgba(59,130,246,.14); }
 select option { background: #141a21; }
 
 /* Segmentado (como Gerar / Tela) */
@@ -438,6 +438,6 @@ dialog.sheet::backdrop { background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
 .ai-help { display: grid; gap: 12px; }
 .steps { margin: 0; padding-left: 18px; display: grid; gap: 10px; color: var(--muted); font-size: .9rem; }
 .steps b { color: var(--text); }
-.tip { padding: 12px 14px; border-radius: 12px; background: var(--primary-soft); color: #a5f3fc; font-size: .88rem; border: 1px solid rgba(34,211,238,.25); }
+.tip { padding: 12px 14px; border-radius: 12px; background: var(--primary-soft); color: #bfdbfe; font-size: .88rem; border: 1px solid rgba(59,130,246,.3); }
 @media (max-width: 1000px) { .ai-layout { grid-template-columns: 1fr; } }
 @media (max-width: 820px) { .bottom-nav { background: rgba(15,20,26,.95); } .bottom-nav a.active { color: #fff; } }
