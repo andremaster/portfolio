@@ -121,15 +121,17 @@ async function callTool(admin: Admin, userId: string, name: string, args: Record
     if (!q) return text("Informe a pergunta.", true);
     const { data: p } = await admin.from("projects").select("organization_id").eq("id", proj.id).single();
     try {
-      const ai = await getAIForOrg(p!.organization_id);
-      const [emb] = await ai.embed([q]);
-      const k = Math.min(Math.max(Number(args.quantidade) || 6, 1), 12);
-      const { data, error } = await admin.rpc("mcp_search", { p_user: userId, p_project: proj.id, p_embedding: JSON.stringify(emb), p_count: k });
+      // Vetores são opcionais (IA da empresa); a busca textual funciona sempre, sem custo.
+      let emb: number[] | null = null;
+      try { [emb] = await (await getAIForOrg(p!.organization_id)).embed([q]); }
+      catch (e) { if (!(e instanceof AIConfigError || e instanceof AIProviderError)) throw e; }
+      const k = Math.min(Math.max(Number(args.quantidade) || 8, 1), 20);
+      const { data, error } = await admin.rpc("mcp_search", { p_user: userId, p_project: proj.id, p_query: q, p_embedding: emb ? JSON.stringify(emb) : null, p_count: k });
       if (error) throw new Error(error.message);
       const rows = (data ?? []) as { source_name: string; category: string; content: string; similarity: number }[];
       await audit(admin, userId, proj, "mcp_search", { results: rows.length });
       if (!rows.length) return text(`Nada encontrado no projeto "${proj.name}" para: ${q}`);
-      return text(rows.map((r, i) => `[${i + 1}] ${r.source_name} (${r.category}) · relevância ${Math.round(r.similarity * 100)}%\n${r.content}`).join("\n\n---\n\n")
+      return text(rows.map((r, i) => `[${i + 1}] ${r.source_name} (${r.category})${r.similarity ? ` · relevância ${Math.round(r.similarity * 100)}%` : ""}\n${r.content}`).join("\n\n---\n\n")
         + "\n\nCite as fontes pelo número [n] ao responder.");
     } catch (e) {
       return text(e instanceof AIConfigError || e instanceof AIProviderError ? e.message : "Falha na busca. Tente novamente.", true);

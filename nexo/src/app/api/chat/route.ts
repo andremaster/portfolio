@@ -61,28 +61,31 @@ export async function POST(req: Request) {
     .eq("conversation_id", conversationId).order("created_at", { ascending: false }).limit(8);
 
   // Quem paga esta resposta (regra do projeto) — decidido antes de gravar a pergunta
-  let chatAI: ChatAI;
+  // Sem IA disponível (empresa não conectou), o chat funciona em "modo busca": mostra os trechos.
+  let chatAI: ChatAI | null = null;
+  let noAIReason = "";
   try {
     chatAI = await resolveChatAI(supabase, { projectId, orgId: project.organization_id, userId: user.id, isExternal: Boolean(isExternal) });
   } catch (e) {
     if (e instanceof AILimitError) return fail(429, e.message);
-    if (e instanceof AIConfigError) return fail(503, e.message);
-    throw e;
+    if (e instanceof AIConfigError) noAIReason = e.message;
+    else throw e;
   }
 
   const { error: userMsgErr } = await supabase.from("messages").insert({ conversation_id: conversationId, role: "user", content: message });
   if (userMsgErr) return fail(500, "Não foi possível salvar a pergunta.");
 
   try {
-    // A busca nos documentos usa sempre a IA da empresa dona (mesma base de vetores para todos)
-    const searchAI = await getAIForOrg(project.organization_id);
-    const ai = chatAI.ai;
-    const [embedding] = await searchAI.embed([message]);
+    // Busca: textual (grátis, sempre) + vetores da IA da empresa dona, se houver
+    let embedding: number[] | null = null;
+    try { [embedding] = await (await getAIForOrg(project.organization_id)).embed([message]); }
+    catch (e) { if (!(e instanceof AIConfigError || e instanceof AIProviderError)) throw e; }
 
-    // Busca vetorial com o cliente do usuário: filtros de projeto + RLS de fontes
-    const { data: matches, error: matchErr } = await supabase.rpc("match_chunks", {
+    // Cliente do usuário: filtros de projeto + RLS de fontes
+    const { data: matches, error: matchErr } = await supabase.rpc("search_chunks", {
       p_project: projectId,
-      p_embedding: JSON.stringify(embedding),
+      p_query: message,
+      p_embedding: embedding ? JSON.stringify(embedding) : null,
       p_count: 6,
       p_categories: agent.knowledge_scope ?? [],
     });
@@ -94,7 +97,13 @@ export async function POST(req: Request) {
     let tokensIn = 0, tokensOut = 0;
 
     // Com ficha preenchida a IA pode responder sobre objetivo/regras mesmo sem trechos
-    if (chunks.length > 0 || briefToText(brief)) {
+    if (!chatAI) {
+      const list = chunks.map((c, i) => `[${i + 1}] ${c.source_name}\n${c.content.slice(0, 700)}`).join("\n\n");
+      content = chunks.length
+        ? `Modo busca (sem IA conectada neste projeto): estes são os trechos mais relevantes dos documentos.\n\n${list}\n\n${noAIReason} Ou use o Nexo pelo conector dentro do seu Claude/ChatGPT.`
+        : `Não encontrei nada nos documentos sobre isso. ${noAIReason}`;
+    } else if (chunks.length > 0 || briefToText(brief)) {
+      const ai = chatAI.ai;
       const msgs: ChatMessage[] = [
         { role: "system", content: buildSystemPrompt(agent, project.name, chunks, { brief, fn: fn as MemberFunction | null, isExternal: Boolean(isExternal) }) },
         ...((history ?? []).reverse().filter((m) => m.role !== "system") as ChatMessage[]),
@@ -106,7 +115,7 @@ export async function POST(req: Request) {
 
     const { data: saved, error: saveErr } = await supabase.from("messages")
       .insert({ conversation_id: conversationId, role: "assistant", content, model, tokens_input: tokensIn, tokens_output: tokensOut,
-        billed_to: model ? chatAI.billedTo : null, ai_label: model ? chatAI.label : null })
+        billed_to: model && chatAI ? chatAI.billedTo : null, ai_label: model && chatAI ? chatAI.label : null })
       .select("id, role, content, created_at").single();
     if (saveErr || !saved) throw new Error(saveErr?.message ?? "save failed");
 

@@ -55,8 +55,17 @@ export async function indexSource(userClient: SupabaseClient | "trusted", source
 
     const { data: proj } = await admin.from("projects").select("organization_id").eq("id", source.project_id).single();
     if (!proj) throw new ExtractionError("Projeto não encontrado.");
-    const ai = await getAIForOrg(proj.organization_id);
-    const embeddings = await ai.embed(chunks.map((c) => `${header}\n\n${c.content}`));
+    // Vetores são opcionais: sem IA da empresa (ou se ela falhar), indexa só para a busca textual (grátis)
+    let embeddings: (number[] | null)[] = chunks.map(() => null);
+    let signature: string | null = null;
+    try {
+      const ai = await getAIForOrg(proj.organization_id);
+      embeddings = await ai.embed(chunks.map((c) => `${header}\n\n${c.content}`));
+      signature = ai.embedSignature;
+    } catch (e) {
+      if (!(e instanceof AIConfigError || e instanceof AIProviderError)) throw e;
+      console.warn("[indexSource] sem vetores, só busca textual:", (e as Error).message);
+    }
 
     await admin.from("document_chunks").delete().eq("source_id", sourceId);
     const rows = chunks.map((c, i) => ({
@@ -66,7 +75,7 @@ export async function indexSource(userClient: SupabaseClient | "trusted", source
       chunk_index: c.index,
       token_count: c.tokenCount,
       metadata: { ...c.metadata, source_name: source.name, category: source.category },
-      embedding: JSON.stringify(embeddings[i]),
+      embedding: embeddings[i] ? JSON.stringify(embeddings[i]) : null,
     }));
     for (let i = 0; i < rows.length; i += 100) {
       const { error: insErr } = await admin.from("document_chunks").insert(rows.slice(i, i + 100));
@@ -75,7 +84,7 @@ export async function indexSource(userClient: SupabaseClient | "trusted", source
     await admin.from("knowledge_sources")
       .update({ status: "indexed", chunk_count: rows.length, error_message: null })
       .eq("id", sourceId);
-    await admin.from("org_ai_settings").update({ embed_signature: ai.embedSignature }).eq("organization_id", proj.organization_id);
+    if (signature) await admin.from("org_ai_settings").update({ embed_signature: signature }).eq("organization_id", proj.organization_id);
     return { ok: true, chunks: rows.length };
   } catch (e) {
     const message = e instanceof ExtractionError || e instanceof AIConfigError || e instanceof AIProviderError
