@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { requireOrg } from "@/lib/context";
 import { NoProject } from "@/components/empty";
 import { initials, roleLabel, timeAgo } from "@/lib/format";
-import { InviteMember, MemberActions, MemberFunctionSelect, MemberRole } from "./client";
+import { ApproveButton, InviteLinks, InviteMember, MemberActions, MemberFunctionSelect, MemberRole } from "./client";
+import { env } from "@/lib/env";
 import { functionLabel, type MemberFunction } from "@/lib/functions";
 
 export const metadata = { title: "Equipe e acessos" };
@@ -14,12 +15,15 @@ export default async function Team() {
   const pid = ctx.project.id;
 
   const [{ data: members }, { data: sources }, { data: grants }, { data: logs }] = await Promise.all([
-    ctx.supabase.from("project_members").select("id, user_id, role, is_external, function, created_at").eq("project_id", pid).order("created_at"),
+    ctx.supabase.from("project_members").select("id, user_id, role, is_external, function, created_at, status, job_title, company").eq("project_id", pid).order("created_at"),
     ctx.supabase.from("knowledge_sources").select("id, name, category").eq("project_id", pid).order("category"),
     ctx.canManage ? ctx.supabase.from("source_access").select("source_id, user_id") : Promise.resolve({ data: [] }),
     ctx.canManage ? ctx.supabase.from("audit_logs").select("id, action, entity_type, metadata, created_at, user_id").eq("project_id", pid)
       .in("entity_type", ["project_members", "source_access", "knowledge_sources", "agents"]).order("created_at", { ascending: false }).limit(15) : Promise.resolve({ data: [] }),
   ]);
+  const { data: invites } = ctx.canManage
+    ? await ctx.supabase.from("project_invites").select("id, code, label, role, is_external, allowed_functions, requires_approval, max_uses, uses, expires_at, revoked").eq("project_id", pid).order("created_at", { ascending: false }).limit(30)
+    : { data: [] };
   const ids = [...new Set([...(members ?? []).map((m) => m.user_id), ...(logs ?? []).map((l) => l.user_id).filter(Boolean)])] as string[];
   const { data: profiles } = await ctx.supabase.from("profiles").select("id, full_name, email").in("id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]);
   const prof = new Map((profiles ?? []).map((p) => [p.id, p]));
@@ -45,8 +49,8 @@ export default async function Team() {
                       <div className="row" style={{ gap: 10 }}>
                         <div className="avatar">{initials(p?.full_name ?? p?.email)}</div>
                         <div style={{ minWidth: 0 }}>
-                          <div className="ellipsis" style={{ fontWeight: 600 }}>{p?.full_name ?? "Convite pendente"}{m.user_id === ctx.user.id && " (você)"}</div>
-                          <div className="small muted ellipsis">{p?.email}</div>
+                          <div className="ellipsis" style={{ fontWeight: 600 }}>{p?.full_name ?? "Convite pendente"}{m.user_id === ctx.user.id && " (você)"}{m.status === "pending" && <span className="badge badge-warn" style={{ marginLeft: 6 }}>aguardando aprovação</span>}</div>
+                          <div className="small muted ellipsis">{[m.company, m.job_title].filter(Boolean).join(" · ") || p?.email}</div>
                         </div>
                       </div>
                     </td>
@@ -60,6 +64,7 @@ export default async function Team() {
                       ? <span className="badge badge-warn">Externo · {granted.length} fonte(s)</span>
                       : <span className="badge">Interno</span>}</td>
                     <td style={{ textAlign: "right" }}>
+                      {ctx.canManage && m.status === "pending" && <ApproveButton id={m.id} />}
                       {ctx.canManage && m.user_id !== ctx.user.id &&
                         <MemberActions id={m.id} userId={m.user_id} name={p?.full_name ?? p?.email ?? ""} isExternal={m.is_external} sources={sources ?? []} granted={granted} />}
                     </td>
@@ -70,6 +75,8 @@ export default async function Team() {
           </table>
         </div>
       </section>
+
+      {ctx.canManage && <InviteLinks invites={invites ?? []} origin={env.appUrl()} />}
 
       <section className="card">
         <div className="card-head"><h2>Perfis de acesso</h2></div>

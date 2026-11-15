@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Icon, type IconName } from "./icons";
 import { selectProject } from "@/app/actions/projects";
+import { selectOrg } from "@/app/actions/invites";
 
 const NAV: { href: string; label: string; short: string; icon: IconName; mobile?: boolean; internal?: boolean }[] = [
   { href: "/dashboard", label: "Dashboard", short: "Início", icon: "dashboard", mobile: true },
@@ -14,7 +15,8 @@ const NAV: { href: string; label: string; short: string; icon: IconName; mobile?
   { href: "/team", label: "Equipe e acessos", short: "Equipe", icon: "users", mobile: true, internal: true },
   { href: "/projects", label: "Projetos", short: "Projetos", icon: "folder" },
   { href: "/integrations", label: "Integrações", short: "Integrações", icon: "plug", internal: true },
-  { href: "/ai", label: "IA da empresa", short: "IA", icon: "spark", internal: true },
+  { href: "/ai", label: "IA e cobrança", short: "IA", icon: "spark", internal: true },
+  { href: "/minhas-ias", label: "Minhas IAs", short: "Minhas IAs", icon: "bot" },
   { href: "/settings", label: "Meu perfil", short: "Perfil", icon: "settings" },
 ];
 
@@ -55,6 +57,21 @@ export function ProjectSwitcher({ projects, current }: { projects: { id: string;
       <span className="sr-only">Projeto ativo</span>
       <select value={current} disabled={pending} onChange={(e) => start(async () => { await selectProject(e.target.value); router.refresh(); })}>
         {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+      </select>
+    </label>
+  );
+}
+
+/** Troca de empresa para quem participa de projetos de mais de uma organização (ex.: terceiros). */
+export function OrgSwitcher({ orgs, current }: { orgs: { id: string; name: string }[]; current: string }) {
+  const router = useRouter();
+  const [pending, start] = useTransition();
+  if (orgs.length < 2) return null;
+  return (
+    <label className="project-switch">
+      <span className="sr-only">Empresa</span>
+      <select value={current} disabled={pending} onChange={(e) => start(async () => { await selectOrg(e.target.value); router.refresh(); })}>
+        {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
       </select>
     </label>
   );

@@ -2,6 +2,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { removeAISettings, saveAISettings } from "@/app/actions/ai";
+import { saveProjectBilling } from "@/app/actions/billing";
 import { FormMessage, Submit } from "@/components/ui";
 import { PRESETS, presetById, type ProviderId } from "@/services/ai/presets";
 
@@ -116,6 +117,44 @@ export function AIForm({ current }: { current: Current }) {
           </button>
         )}
       </div>
+    </form>
+  );
+}
+
+const MODES = [
+  ["owner", "A empresa dona paga", "Todos usam a IA conectada acima. Terceiros não precisam de conta de IA e nunca veem a chave."],
+  ["member", "Cada participante paga", "Cada pessoa conecta a própria IA (conta da empresa dela, chave de API ou IA própria)."],
+  ["mixed", "Misto", "A empresa dona paga por padrão; quem quiser (ou estourar o limite) usa a própria IA."],
+] as const;
+
+export function BillingForm({ current }: { current: { mode: "owner" | "member" | "mixed"; member: number | null; external: number | null } }) {
+  const [state, action] = useActionState(saveProjectBilling, undefined);
+  const [mode, setMode] = useState(current.mode);
+  return (
+    <form action={action} className="form">
+      <div className="provider-grid" role="radiogroup" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+        {MODES.map(([id, title, desc]) => (
+          <button type="button" key={id} role="radio" aria-checked={mode === id} className={`provider ${mode === id ? "active" : ""}`} onClick={() => setMode(id)}>
+            <b>{title}</b><small style={{ fontFamily: "inherit" }}>{desc}</small>
+          </button>
+        ))}
+      </div>
+      <input type="hidden" name="billing_mode" value={mode} />
+      {mode !== "member" && (
+        <div className="grid-2">
+          <label className="field"><span>Limite por pessoa (perguntas/mês)</span>
+            <input className="input" name="monthly_limit_member" type="number" min={0} defaultValue={current.member ?? ""} placeholder="Sem limite" />
+            <small>Vale para membros internos, pagos pela empresa.</small>
+          </label>
+          <label className="field"><span>Limite para terceiros (perguntas/mês)</span>
+            <input className="input" name="monthly_limit_external" type="number" min={0} defaultValue={current.external ?? ""} placeholder="Sem limite" />
+            <small>Ex.: 200. {mode === "mixed" ? "Ao estourar, o terceiro passa a usar a própria IA." : "Ao estourar, o terceiro fica sem perguntas até o próximo mês."}</small>
+          </label>
+        </div>
+      )}
+      <p className="small muted">A busca nos documentos (indexação) usa sempre a IA da empresa dona, em qualquer opção.</p>
+      <FormMessage state={state} />
+      <div><Submit>Salvar regra de cobrança</Submit></div>
     </form>
   );
 }

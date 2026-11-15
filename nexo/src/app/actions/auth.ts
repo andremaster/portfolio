@@ -29,18 +29,19 @@ const SignUp = z.object({
 export async function signUp(_: ActionState, form: FormData): Promise<ActionState> {
   const parsed = SignUp.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const next = safeNext(form.get("next")) === "/dashboard" ? "/onboarding" : safeNext(form.get("next"));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.full_name },
-      emailRedirectTo: `${env.appUrl()}/auth/callback?next=/onboarding`,
+      emailRedirectTo: `${env.appUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
   if (error) return { error: error.message };
   if (!data.session) return { ok: "Conta criada! Confirme o e-mail que enviamos para continuar." };
-  redirect("/onboarding");
+  redirect(next);
 }
 
 export async function signOut() {

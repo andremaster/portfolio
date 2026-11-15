@@ -1,6 +1,6 @@
 import { requireOrg } from "@/lib/context";
 import { presetById } from "@/services/ai/presets";
-import { AIForm } from "./client";
+import { AIForm, BillingForm } from "./client";
 
 export const metadata = { title: "IA da empresa" };
 export const maxDuration = 60;
@@ -46,6 +46,58 @@ export default async function AISettingsPage() {
           <p className="small muted">Trocar o modelo de busca exige reindexar as fontes (botão “Reindexar tudo” na Base de conhecimento).</p>
         </aside>
       </div>
+
+      {ctx.project && ctx.canManage && <ProjectBilling projectId={ctx.project.id} projectName={ctx.project.name} />}
+    </>
+  );
+}
+
+type Usage = { user_id: string; full_name: string | null; email: string | null; company: string | null; job_title: string | null; is_external: boolean; questions_owner: number; questions_member: number; tokens_in: number; tokens_out: number };
+
+async function ProjectBilling({ projectId, projectName }: { projectId: string; projectName: string }) {
+  const ctx = await requireOrg();
+  const [{ data: settings }, { data: usage }] = await Promise.all([
+    ctx.supabase.from("project_ai_settings").select("billing_mode, monthly_limit_member, monthly_limit_external").eq("project_id", projectId).maybeSingle(),
+    ctx.supabase.rpc("project_ai_usage", { p_project: projectId }),
+  ]);
+  const rows = (usage ?? []) as Usage[];
+  const total = rows.reduce((a, r) => ({ q: a.q + r.questions_owner, i: a.i + Number(r.tokens_in), o: a.o + Number(r.tokens_out) }), { q: 0, i: 0, o: 0 });
+  const fmt = (n: number) => n.toLocaleString("pt-BR");
+
+  return (
+    <>
+      <section className="card">
+        <div className="card-head">
+          <div><span className="eyebrow">Projeto {projectName}</span><h2>Quem paga os tokens</h2></div>
+        </div>
+        <BillingForm current={{ mode: (settings?.billing_mode as "owner" | "member" | "mixed") ?? "owner", member: settings?.monthly_limit_member ?? null, external: settings?.monthly_limit_external ?? null }} />
+      </section>
+
+      <section className="card">
+        <div className="card-head">
+          <h2>Consumo neste mês</h2>
+          <span className="badge mono">{fmt(total.q)} perguntas pagas pela empresa · {fmt(total.i + total.o)} tokens</span>
+        </div>
+        {rows.length === 0 ? <p className="muted small">Nenhuma pergunta neste mês.</p> : (
+          <div className="table-wrap">
+            <table className="table">
+              <thead><tr><th>Pessoa</th><th className="hide-sm">Empresa · cargo</th><th>Pagas pela empresa</th><th>Com a própria IA</th><th className="hide-sm">Tokens (empresa)</th></tr></thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.user_id}>
+                    <td><b>{r.full_name ?? r.email}</b>{r.is_external && <span className="badge badge-warn" style={{ marginLeft: 6 }}>Terceiro</span>}</td>
+                    <td className="hide-sm muted">{[r.company, r.job_title].filter(Boolean).join(" · ") || "—"}</td>
+                    <td className="mono">{fmt(r.questions_owner)}</td>
+                    <td className="mono">{fmt(r.questions_member)}</td>
+                    <td className="hide-sm mono">{fmt(Number(r.tokens_in) + Number(r.tokens_out))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="small muted" style={{ marginTop: 10 }}>O custo em reais depende do provedor e do modelo: confira a fatura na conta da IA conectada pela empresa.</p>
+      </section>
     </>
   );
 }

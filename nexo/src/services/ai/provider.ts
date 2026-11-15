@@ -109,11 +109,11 @@ export type AISettingsInput = {
 };
 
 /** Monta o provedor a partir de chaves explícitas (usado no teste de conexão). */
-export function buildAI(cfg: AISettingsInput): AIProvider {
+export function buildAI(cfg: AISettingsInput, allowModelOverride = true): AIProvider {
   const client = (baseURL: string, apiKey: string) => new OpenAI({ apiKey: apiKey || "sem-chave", baseURL, timeout: 45_000, maxRetries: 1 });
   const chatEp = { provider: cfg.chat.provider, client: client(cfg.chat.baseURL, cfg.chat.apiKey), model: cfg.chat.model };
   const embedEp = cfg.embed ? { provider: cfg.embed.provider, client: client(cfg.embed.baseURL, cfg.embed.apiKey), model: cfg.embed.model } : null;
-  return new OpenAICompatible(chatEp, embedEp, true);
+  return new OpenAICompatible(chatEp, embedEp, allowModelOverride);
 }
 
 type SettingsRow = {
@@ -151,4 +151,17 @@ export async function getAIForOrg(orgId: string): Promise<AIProvider> {
   if (cfg) return buildAI(cfg);
   if (process.env.PLATFORM_AI_FALLBACK === "true") return platformAI();
   throw new AIConfigError("A IA da empresa ainda não foi conectada. Um administrador deve configurá-la em “IA da empresa”.");
+}
+
+/** Conexão de IA pessoal de um usuário (só chat). Confere o dono da conexão. */
+export async function loadUserConnection(connectionId: string, userId: string) {
+  const admin = createAdminClient();
+  const { data } = await admin.from("user_ai_connections").select("*").eq("id", connectionId).eq("user_id", userId).maybeSingle();
+  if (!data) return null;
+  let apiKey = "";
+  if (data.secret_id) {
+    const { data: s } = await admin.rpc("ai_get_secret", { p_id: data.secret_id });
+    apiKey = (s as string | null) ?? "";
+  }
+  return { label: data.label as string, chat: { provider: data.provider as string, baseURL: data.base_url as string, model: data.chat_model as string, apiKey } };
 }

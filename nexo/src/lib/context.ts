@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { MemberFunction } from "@/lib/functions";
 
 export const ACTIVE_PROJECT_COOKIE = "hub_project";
+export const ACTIVE_ORG_COOKIE = "hub_org";
 
 export type ProjectRole = "admin" | "collaborator" | "reader";
 export type Project = { id: string; name: string; description: string | null; status: string; environment: string };
@@ -25,7 +26,9 @@ export const getContext = cache(async () => {
     role: m.role as "owner" | "admin" | "member",
     ...(m.organization as unknown as { id: string; name: string; slug: string; plan: string }),
   }));
-  const org = orgs.find((o) => o.id === profile?.organization_id) ?? orgs[0] ?? null;
+  // Organização ativa: a escolhida (cookie) > a do perfil > a primeira. Terceiros podem estar em várias.
+  const wantedOrg = (await cookies()).get(ACTIVE_ORG_COOKIE)?.value;
+  const org = orgs.find((o) => o.id === wantedOrg) ?? orgs.find((o) => o.id === profile?.organization_id) ?? orgs[0] ?? null;
 
   let projects: Project[] = [];
   if (org) {

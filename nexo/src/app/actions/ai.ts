@@ -7,6 +7,7 @@ import { buildAI, loadOrgAISettings, AIConfigError, AIProviderError } from "@/se
 import { presetById } from "@/services/ai/presets";
 import { indexSource } from "@/services/rag/indexer";
 import type { ActionState } from "./types";
+import { checkAIUrl, keyHint } from "@/lib/ai-url";
 
 const Url = z.string().trim().url("Endereço da API inválido.").max(300);
 const Form = z.object({
@@ -21,19 +22,6 @@ const Form = z.object({
   embed_key: z.string().trim().max(500).optional(),
 });
 
-/** Bloqueia endereços internos (rede da VPS, localhost, IPs privados) — evita acesso à infraestrutura. */
-function checkUrl(raw: string): string | null {
-  let u: URL;
-  try { u = new URL(raw); } catch { return "Endereço da API inválido."; }
-  if (process.env.ALLOW_PRIVATE_AI_URLS === "true") return null;
-  if (u.protocol !== "https:") return "Use um endereço https:// do provedor.";
-  const h = u.hostname.toLowerCase();
-  if (!h.includes(".") || h === "localhost" || h.endsWith(".local") || h.endsWith(".internal")) return "Endereço interno não é permitido.";
-  if (/^(\d+\.){3}\d+$/.test(h) || h.includes(":")) return "Use o domínio do provedor, não um IP.";
-  return null;
-}
-
-const hint = (key: string) => (key.length >= 8 ? `…${key.slice(-4)}` : "…");
 
 export async function saveAISettings(_: ActionState, form: FormData): Promise<ActionState> {
   const ctx = await getContext();
@@ -42,7 +30,7 @@ export async function saveAISettings(_: ActionState, form: FormData): Promise<Ac
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const f = parsed.data;
 
-  const chatUrlErr = checkUrl(f.chat_base_url);
+  const chatUrlErr = checkAIUrl(f.chat_base_url);
   if (chatUrlErr) return { error: chatUrlErr };
 
   const admin = createAdminClient();
@@ -58,7 +46,7 @@ export async function saveAISettings(_: ActionState, form: FormData): Promise<Ac
     if (model) embed = { provider: f.chat_provider, baseURL: f.chat_base_url, model, apiKey: chatKey };
   } else {
     if (!f.embed_base_url || !f.embed_model) return { error: "Informe o endereço e o modelo de embeddings." };
-    const embUrlErr = checkUrl(f.embed_base_url);
+    const embUrlErr = checkAIUrl(f.embed_base_url);
     if (embUrlErr) return { error: embUrlErr };
     const prevEmbed = current?.embed_mode === "separate" && stored?.embed ? stored.embed.apiKey : "";
     const embKey = f.embed_key || (current?.embed_provider === f.embed_provider ? prevEmbed : "");
@@ -91,13 +79,13 @@ export async function saveAISettings(_: ActionState, form: FormData): Promise<Ac
     const row = {
       organization_id: ctx.org.id,
       chat_provider: f.chat_provider, chat_base_url: f.chat_base_url, chat_model: f.chat_model,
-      chat_secret_id: chatSecret, chat_key_hint: f.chat_key ? hint(f.chat_key) : (current?.chat_key_hint ?? null),
+      chat_secret_id: chatSecret, chat_key_hint: f.chat_key ? keyHint(f.chat_key) : (current?.chat_key_hint ?? null),
       embed_mode: f.embed_mode,
       embed_provider: f.embed_mode === "separate" ? embed.provider : null,
       embed_base_url: f.embed_mode === "separate" ? embed.baseURL : null,
       embed_model: embed.model,
       embed_secret_id: embedSecret,
-      embed_key_hint: f.embed_mode === "separate" ? (f.embed_key ? hint(f.embed_key) : (current?.embed_key_hint ?? null)) : null,
+      embed_key_hint: f.embed_mode === "separate" ? (f.embed_key ? keyHint(f.embed_key) : (current?.embed_key_hint ?? null)) : null,
       updated_by: ctx.user.id,
     };
     const { error } = await admin.from("org_ai_settings").upsert(row, { onConflict: "organization_id" });

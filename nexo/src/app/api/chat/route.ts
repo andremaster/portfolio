@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
 import { getAIForOrg, AIConfigError, AIProviderError, type ChatMessage } from "@/services/ai/provider";
+import { resolveChatAI, AILimitError, type ChatAI } from "@/services/ai/billing";
 import { briefToText, buildSystemPrompt, NO_CONTEXT_ANSWER, type RetrievedChunk } from "@/services/rag/prompt";
 import type { MemberFunction } from "@/lib/functions";
 
@@ -59,12 +60,24 @@ export async function POST(req: Request) {
   const { data: history } = await supabase.from("messages").select("role, content")
     .eq("conversation_id", conversationId).order("created_at", { ascending: false }).limit(8);
 
+  // Quem paga esta resposta (regra do projeto) — decidido antes de gravar a pergunta
+  let chatAI: ChatAI;
+  try {
+    chatAI = await resolveChatAI(supabase, { projectId, orgId: project.organization_id, userId: user.id, isExternal: Boolean(isExternal) });
+  } catch (e) {
+    if (e instanceof AILimitError) return fail(429, e.message);
+    if (e instanceof AIConfigError) return fail(503, e.message);
+    throw e;
+  }
+
   const { error: userMsgErr } = await supabase.from("messages").insert({ conversation_id: conversationId, role: "user", content: message });
   if (userMsgErr) return fail(500, "Não foi possível salvar a pergunta.");
 
   try {
-    const ai = await getAIForOrg(project.organization_id);
-    const [embedding] = await ai.embed([message]);
+    // A busca nos documentos usa sempre a IA da empresa dona (mesma base de vetores para todos)
+    const searchAI = await getAIForOrg(project.organization_id);
+    const ai = chatAI.ai;
+    const [embedding] = await searchAI.embed([message]);
 
     // Busca vetorial com o cliente do usuário: filtros de projeto + RLS de fontes
     const { data: matches, error: matchErr } = await supabase.rpc("match_chunks", {
@@ -87,12 +100,13 @@ export async function POST(req: Request) {
         ...((history ?? []).reverse().filter((m) => m.role !== "system") as ChatMessage[]),
         { role: "user", content: message },
       ];
-      const r = await ai.chat(msgs, { model: agent.model, temperature: Number(agent.temperature) });
+      const r = await ai.chat(msgs, { model: chatAI.useAgentModel ? agent.model : null, temperature: Number(agent.temperature) });
       ({ content, model, tokensIn, tokensOut } = r);
     }
 
     const { data: saved, error: saveErr } = await supabase.from("messages")
-      .insert({ conversation_id: conversationId, role: "assistant", content, model, tokens_input: tokensIn, tokens_output: tokensOut })
+      .insert({ conversation_id: conversationId, role: "assistant", content, model, tokens_input: tokensIn, tokens_output: tokensOut,
+        billed_to: model ? chatAI.billedTo : null, ai_label: model ? chatAI.label : null })
       .select("id, role, content, created_at").single();
     if (saveErr || !saved) throw new Error(saveErr?.message ?? "save failed");
 

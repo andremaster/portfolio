@@ -3,7 +3,7 @@ import { requireOrg } from "@/lib/context";
 import { signOut } from "@/app/actions/auth";
 import { Brand, LogoMark } from "@/components/brand";
 import { Icon } from "@/components/icons";
-import { BottomNav, ProjectSwitcher, SideNav } from "@/components/nav";
+import { BottomNav, OrgSwitcher, ProjectSwitcher, SideNav } from "@/components/nav";
 import { initials, roleLabel } from "@/lib/format";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="main">
         <header className="topbar">
           <Link href="/dashboard" className="mobile-only"><LogoMark size={30} /></Link>
+          <OrgSwitcher orgs={ctx.orgs.map((o) => ({ id: o.id, name: o.name }))} current={ctx.org.id} />
           <ProjectSwitcher projects={ctx.projects} current={ctx.project?.id} />
           {ctx.isExternal && <span className="badge badge-warn">Acesso externo</span>}
           <div className="grow" />
