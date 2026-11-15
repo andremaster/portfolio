@@ -71,7 +71,7 @@ export async function setProjectAI(connectionId: string | null): Promise<ActionS
 }
 
 /** Gera o endereço pessoal do conector MCP. O token só é mostrado uma vez (guardamos o hash). */
-export async function createMcpToken(label: string): Promise<{ url?: string; error?: string }> {
+export async function createMcpToken(label: string): Promise<{ url?: string; base?: string; key?: string; error?: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Sessão expirada." };
@@ -84,7 +84,7 @@ export async function createMcpToken(label: string): Promise<{ url?: string; err
   if (error) return { error: "Não foi possível gerar o conector." };
   revalidatePath("/minhas-ias");
   const { env } = await import("@/lib/env");
-  return { url: `${env.appUrl()}/api/mcp/${token}` };
+  return { url: `${env.appUrl()}/api/mcp/${token}`, base: `${env.appUrl()}/api/mcp`, key: token };
 }
 
 export async function revokeMcpToken(id: string): Promise<ActionState> {

@@ -7,35 +7,49 @@ import { Icon } from "@/components/icons";
 type Tok = { id: string; label: string; last_used_at: string | null; created_at: string };
 
 const CLIENTS = [
-  ["Claude (claude.ai / app)", "Configurações → Conectores → Adicionar conector personalizado → cole o endereço. Em qualquer conversa ou projeto, ative o “Nexo” no menu de ferramentas."],
-  ["ChatGPT", "Configurações → Apps e conectores → Avançado → ative o Modo desenvolvedor → Criar → cole o endereço (autenticação: nenhuma). Depois, na conversa, ative o Nexo em “+ → Mais”."],
-  ["Gemini CLI", "No arquivo ~/.gemini/settings.json, em \"mcpServers\", adicione \"nexo\": { \"httpUrl\": \"<endereço>\" }."],
-  ["Claude Code / Cursor / VS Code", "claude mcp add --transport http nexo <endereço>  (Cursor e VS Code: adicione um servidor MCP do tipo HTTP com o endereço)."],
+  ["Claude (claude.ai / app)", "Configurações → Conectores → Adicionar conector personalizado → URL: o endereço base → Autenticação: “Sem login” → Cabeçalhos de requisição → Adicionar: nome Authorization, valor Bearer <chave>. O Claude guarda a chave criptografada e não mostra mais."],
+  ["Claude Code", "claude mcp add --transport http nexo <endereço base> --header \"Authorization: Bearer <chave>\""],
+  ["Gemini CLI", "~/.gemini/settings.json → \"mcpServers\": { \"nexo\": { \"httpUrl\": \"<endereço base>\", \"headers\": { \"Authorization\": \"Bearer <chave>\" } } }"],
+  ["Cursor / VS Code", "Adicione um servidor MCP do tipo HTTP com o endereço base e o cabeçalho Authorization: Bearer <chave>."],
+  ["ChatGPT (modo desenvolvedor)", "Ainda não aceita cabeçalho: use o “endereço com a chave” (Configurações → Apps e conectores → Avançado → Modo desenvolvedor → Criar → autenticação: nenhuma). Não mostre esse endereço a ninguém."],
 ] as const;
+
+function Copy({ value, label }: { value: string; label: string }) {
+  const [ok, setOk] = useState(false);
+  return (
+    <div className="row"><span className="small muted" style={{ minWidth: 110 }}>{label}</span><code className="grow" style={{ wordBreak: "break-all" }}>{value}</code>
+      <button className="btn btn-sm" onClick={async () => { await navigator.clipboard.writeText(value); setOk(true); setTimeout(() => setOk(false), 1500); }}><Icon name="copy" size={14} /> {ok ? "Copiado!" : "Copiar"}</button>
+    </div>
+  );
+}
 
 export function ConnectorPanel({ tokens }: { tokens: Tok[] }) {
   const [pending, start] = useTransition();
-  const [url, setUrl] = useState<string | null>(null);
+  const [made, setMade] = useState<{ url: string; base: string; key: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const router = useRouter();
 
   return (
     <div className="form">
       <p className="muted small">Use o Nexo <b>dentro</b> do ChatGPT, Claude ou Gemini que você já paga: a IA busca o contexto do projeto, mostra a ficha e importa a conversa atual para o Nexo (resumo .md, conversa completa ou os dois). Tudo com as suas permissões.</p>
 
-      {url ? (
+      {made ? (
         <div className="subcard">
-          <b>Seu endereço do conector (copie agora — ele não será mostrado de novo):</b>
-          <div className="row"><code className="grow" style={{ wordBreak: "break-all" }}>{url}</code>
-            <button className="btn btn-sm" onClick={async () => { await navigator.clipboard.writeText(url); setCopied(true); }}><Icon name="copy" size={14} /> {copied ? "Copiado!" : "Copiar"}</button>
-          </div>
-          <small className="muted">Trate como senha: quem tiver este endereço acessa os seus projetos. Se vazar, revogue abaixo.</small>
+          <b>Copie agora — a chave não será mostrada de novo.</b>
+          <span className="small"><b>Recomendado</b> (Claude, Claude Code, Gemini CLI, Cursor): endereço sem segredo + chave no cabeçalho.</span>
+          <Copy label="Endereço base" value={made.base} />
+          <Copy label="Cabeçalho" value={`Authorization: Bearer ${made.key}`} />
+          <Copy label="Só o valor" value={`Bearer ${made.key}`} />
+          <details>
+            <summary className="small" style={{ cursor: "pointer" }}>Para o ChatGPT (endereço com a chave)</summary>
+            <Copy label="Endereço" value={made.url} />
+          </details>
+          <small className="muted">Trate a chave como senha e não a mostre em capturas de tela. Se vazar, revogue abaixo e gere outra.</small>
         </div>
       ) : (
         <div><button className="btn btn-primary" disabled={pending}
-          onClick={() => start(async () => { setErr(null); const r = await createMcpToken("Conector"); if (r.url) { setUrl(r.url); router.refresh(); } else setErr(r.error ?? "Erro"); })}>
-          <Icon name="plug" size={16} /> {pending ? "Gerando…" : "Gerar endereço do conector"}</button></div>
+          onClick={() => start(async () => { setErr(null); const r = await createMcpToken("Conector"); if (r.url && r.base && r.key) { setMade({ url: r.url, base: r.base, key: r.key }); router.refresh(); } else setErr(r.error ?? "Erro"); })}>
+          <Icon name="plug" size={16} /> {pending ? "Gerando…" : "Gerar chave do conector"}</button></div>
       )}
       {err && <div className="alert alert-error">{err}</div>}
 
