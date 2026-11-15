@@ -14,6 +14,7 @@ const NAV: { href: string; label: string; short: string; icon: IconName; mobile?
   { href: "/team", label: "Equipe e acessos", short: "Equipe", icon: "users", mobile: true, internal: true },
   { href: "/projects", label: "Projetos", short: "Projetos", icon: "folder" },
   { href: "/integrations", label: "Integrações", short: "Integrações", icon: "plug", internal: true },
+  { href: "/ai", label: "IA da empresa", short: "IA", icon: "spark", internal: true },
   { href: "/settings", label: "Meu perfil", short: "Perfil", icon: "settings" },
 ];
 

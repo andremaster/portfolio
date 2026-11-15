@@ -1,7 +1,8 @@
 "use client";
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { addSource, deleteSource, getSourceFileUrl, reprocessSource } from "@/app/actions/knowledge";
+import { addSource, deleteSource, getSourceFileUrl, importHandoff, reprocessSource } from "@/app/actions/knowledge";
+import { reindexProject } from "@/app/actions/ai";
 import { FormMessage, Sheet, Submit } from "@/components/ui";
 import { Icon, sourceLabel } from "@/components/icons";
 import { FUNCTIONS, functionLabel } from "@/lib/functions";
@@ -64,6 +65,61 @@ export function AddSource({ categories, autoOpen }: { categories: string[]; auto
         </form>
       </Sheet>
     </>
+  );
+}
+
+const AIS = [["chatgpt", "ChatGPT"], ["claude", "Claude"], ["gemini", "Gemini"], ["copilot", "Copilot"], ["outra", "Outra"]] as const;
+
+/** Traz um projeto/conversa de outra IA: o usuário gera o handoff lá (com a IA dele) e cola aqui. */
+export function HandoffImport({ prompt, canManage }: { prompt: string; canManage: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [origin, setOrigin] = useState<string>("chatgpt");
+  const [copied, setCopied] = useState(false);
+  const [state, action] = useActionState(importHandoff, undefined);
+  const router = useRouter();
+  useEffect(() => { if (state?.ok) { setOpen(false); router.refresh(); } }, [state, router]);
+
+  return (
+    <>
+      <button className="btn" onClick={() => setOpen(true)}><Icon name="spark" size={16} /> Importar de outra IA</button>
+      <Sheet open={open} onClose={() => setOpen(false)} title="Trazer um projeto de outra IA">
+        <form action={action} className="form">
+          <p className="muted small">Já tem este projeto no ChatGPT, Claude ou Gemini? Peça à <b>sua</b> IA um handoff (o custo é da sua conta) e cole aqui.</p>
+          <div className="chips">
+            {AIS.map(([id, l]) => (
+              <button type="button" key={id} className={`chip ${origin === id ? "active" : ""}`} onClick={() => setOrigin(id)}>{l}</button>
+            ))}
+          </div>
+          <input type="hidden" name="origin" value={origin} />
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <b>1. Copie e envie este pedido na sua IA</b>
+            <button type="button" className="btn btn-sm" onClick={async () => { await navigator.clipboard.writeText(prompt); setCopied(true); setTimeout(() => setCopied(false), 2000); }}>
+              <Icon name="copy" size={14} /> {copied ? "Copiado!" : "Copiar pedido"}
+            </button>
+          </div>
+          <pre className="card small" style={{ whiteSpace: "pre-wrap", maxHeight: 180, overflow: "auto", margin: 0 }}>{prompt}</pre>
+          <label className="field"><span>2. Cole aqui a resposta (o handoff)</span>
+            <textarea className="textarea" name="handoff" required style={{ minHeight: 180 }} placeholder="# HANDOFF — …" />
+          </label>
+          {canManage && (
+            <label className="check"><input type="checkbox" name="fill_brief" defaultChecked /> Preencher a ficha do projeto com o handoff (só os campos vazios)</label>
+          )}
+          <FormMessage state={state} />
+          <Submit pendingText="Importando e indexando…">Importar handoff</Submit>
+        </form>
+      </Sheet>
+    </>
+  );
+}
+
+export function ReindexAll() {
+  const [pending, start] = useTransition();
+  const router = useRouter();
+  return (
+    <button className="btn btn-ghost" disabled={pending} title="Reindexa as fontes com a IA atual da empresa"
+      onClick={() => start(async () => { const r = await reindexProject(); alert(r?.error ?? r?.ok); router.refresh(); })}>
+      <Icon name="refresh" size={16} className={pending ? "spin" : ""} /> {pending ? "Reindexando…" : "Reindexar tudo"}
+    </button>
   );
 }
 

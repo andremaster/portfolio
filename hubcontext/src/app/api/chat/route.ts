@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { env } from "@/lib/env";
-import { getAI, AIConfigError, type ChatMessage } from "@/services/ai/provider";
+import { getAIForOrg, AIConfigError, AIProviderError, type ChatMessage } from "@/services/ai/provider";
 import { briefToText, buildSystemPrompt, NO_CONTEXT_ANSWER, type RetrievedChunk } from "@/services/rag/prompt";
 import type { MemberFunction } from "@/lib/functions";
 
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   if (userMsgErr) return fail(500, "Não foi possível salvar a pergunta.");
 
   try {
-    const ai = getAI();
+    const ai = await getAIForOrg(project.organization_id);
     const [embedding] = await ai.embed([message]);
 
     // Busca vetorial com o cliente do usuário: filtros de projeto + RLS de fontes
@@ -120,7 +120,8 @@ export async function POST(req: Request) {
     });
   } catch (e) {
     console.error("[chat]", e);
-    if (e instanceof AIConfigError) return fail(503, "A IA ainda não foi configurada pelo administrador.");
+    if (e instanceof AIConfigError) return fail(503, e.message);
+    if (e instanceof AIProviderError) return fail(502, e.message);
     return fail(502, "O agente não conseguiu responder agora. Tente novamente.");
   }
 }

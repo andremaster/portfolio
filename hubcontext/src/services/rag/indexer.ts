@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getAI } from "@/services/ai/provider";
+import { getAIForOrg, AIConfigError, AIProviderError } from "@/services/ai/provider";
 import { chunkText } from "./chunk";
 import { extractText, fetchUrlText, ExtractionError } from "./extract";
 
@@ -49,7 +49,10 @@ export async function indexSource(userClient: SupabaseClient, sourceId: string):
     const chunks = chunkText(text).slice(0, MAX_CHUNKS);
     if (chunks.length === 0) throw new ExtractionError("Nenhum texto encontrado na fonte.");
 
-    const embeddings = await getAI().embed(chunks.map((c) => `${header}\n\n${c.content}`));
+    const { data: proj } = await admin.from("projects").select("organization_id").eq("id", source.project_id).single();
+    if (!proj) throw new ExtractionError("Projeto não encontrado.");
+    const ai = await getAIForOrg(proj.organization_id);
+    const embeddings = await ai.embed(chunks.map((c) => `${header}\n\n${c.content}`));
 
     await admin.from("document_chunks").delete().eq("source_id", sourceId);
     const rows = chunks.map((c, i) => ({
@@ -68,9 +71,11 @@ export async function indexSource(userClient: SupabaseClient, sourceId: string):
     await admin.from("knowledge_sources")
       .update({ status: "indexed", chunk_count: rows.length, error_message: null })
       .eq("id", sourceId);
+    await admin.from("org_ai_settings").update({ embed_signature: ai.embedSignature }).eq("organization_id", proj.organization_id);
     return { ok: true, chunks: rows.length };
   } catch (e) {
-    const message = e instanceof ExtractionError ? e.message : "Falha na indexação. Tente reprocessar.";
+    const message = e instanceof ExtractionError || e instanceof AIConfigError || e instanceof AIProviderError
+      ? e.message : "Falha na indexação. Tente reprocessar.";
     console.error("[indexSource]", sourceId, e);
     await admin.from("knowledge_sources").update({ status: "error", error_message: message }).eq("id", sourceId);
     return { ok: false, error: message };

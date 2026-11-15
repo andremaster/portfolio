@@ -49,7 +49,7 @@ const PLANS = [
   },
   {
     name: "Business", price: "R$ 4.900", period: "/mês", tag: "Mais escolhido", featured: true,
-    items: ["Até 15 projetos", "Até 75 usuários", "50 GB de conhecimento", "Agentes ilimitados", "15.000 consultas/mês", "Auditoria completa e exportação", "Escolha do modelo (OpenAI ou Azure)", "Suporte prioritário"],
+    items: ["Até 15 projetos", "Até 75 usuários", "50 GB de conhecimento", "Agentes ilimitados", "15.000 consultas/mês", "Auditoria completa e exportação", "Use a sua própria IA (Gemini, OpenAI, Claude…)", "Suporte prioritário"],
     cta: "Começar teste grátis", href: "/signup",
   },
   {
@@ -60,7 +60,9 @@ const PLANS = [
 ];
 
 const FAQ = [
-  ["Meus dados são usados para treinar a IA?", "Não. Usamos APIs corporativas da OpenAI e do Azure OpenAI, que não treinam modelos com os seus dados. No plano Enterprise, o modelo roda no seu próprio tenant Azure."],
+  ["Preciso pagar a IA à parte?", "Você usa a IA da sua própria conta (Gemini, OpenAI, Claude, DeepSeek, Kimi e outras compatíveis). O consumo é cobrado direto pelo provedor, sem markup. O Gemini tem plano gratuito para começar."],
+  ["Meus dados são usados para treinar a IA?", "Depende do provedor e do plano que você conectar: APIs pagas da OpenAI, do Azure OpenAI e da Anthropic não treinam com os seus dados. Planos gratuitos podem usar os dados — para dados sensíveis, conecte um plano pago ou o seu tenant Azure."],
+  ["Consigo trazer um projeto que já está no ChatGPT ou no Claude?", "Sim. O HubContext gera o pedido de handoff; você roda na sua IA e cola a resposta. Ela vira fonte indexada e preenche a ficha do projeto. O caminho inverso também existe: exporte o contexto em Markdown para o projeto da sua IA."],
   ["O que é RAG e por que importa?", "RAG (Retrieval-Augmented Generation) faz a IA consultar os documentos do seu projeto antes de responder. Ela responde com base no que é real e mostra de onde tirou cada informação."],
   ["Um terceiro pode ver documentos que não deveria?", "Não. O controle é feito dentro do banco de dados: se a fonte não foi liberada para aquela pessoa, ela não aparece na lista nem é usada pela IA nas respostas para ela."],
   ["Preciso reorganizar toda a documentação antes?", "Não. Comece com o que existe, como READMEs, ADRs, PDFs e páginas da wiki. O painel de saúde do conhecimento mostra o que falta e o que deu erro."],
@@ -83,7 +85,7 @@ export default function Landing() {
 
       <section className="hero">
         <span className="pill">● O hub de contexto dos seus projetos com IA</span>
-        <h1>Um projeto. Um contexto. Cada área e cada parceiro com a IA certa.</h1>
+        <h1>Um projeto. Um contexto. <span className="grad-text">Cada área com a IA certa.</span></h1>
         <p>Defina uma vez o objetivo, as regras de negócio, as restrições e as amostras de dados seguras do projeto. Dev, dados, jurídico, compliance, risco e empresas terceiras recebem o contexto certo para a sua função, com fontes, permissões e auditoria.</p>
         <div className="row row-wrap" style={{ justifyContent: "center" }}>
           <Link className="btn btn-primary" href="/signup">Testar grátis por 14 dias</Link>
@@ -95,6 +97,15 @@ export default function Landing() {
             Siga o padrão do projeto [1]: crie o schema zod em <code>src/schemas</code>, o handler em <code>src/routes</code> com testes, registre no OpenAPI e adicione o evento de auditoria. A autenticação usa token do Entra ID [2].
             <div className="lp-src"><span>[1] Padrões de desenvolvimento · 82%</span><span>[2] API de atendimento · 64%</span></div>
           </div>
+        </div>
+      </section>
+
+      <section className="lp-section" id="sua-ia">
+        <div className="feature" style={{ textAlign: "center", justifyItems: "center", padding: "32px 24px" }}>
+          <span className="pill">✦ Traga a sua IA</span>
+          <h2 className="lp-title" style={{ marginBottom: 0 }}>Use a IA que a sua empresa <span className="grad-text">já paga</span></h2>
+          <p className="lp-lead" style={{ margin: "0 auto" }}>Conecte a sua chave e o HubContext responde com ela: o custo de IA fica na sua conta, sem markup. Já tem o projeto numa conversa do ChatGPT ou do Claude? Gere um handoff lá e importe aqui em um clique — e leve o contexto de volta quando quiser.</p>
+          <div className="lp-byo">{["Google Gemini", "ChatGPT / OpenAI", "Claude", "DeepSeek", "Kimi", "Groq", "OpenRouter", "Azure / Ollama"].map((n) => <span key={n}>{n}</span>)}</div>
         </div>
       </section>
 

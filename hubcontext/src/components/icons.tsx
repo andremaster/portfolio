@@ -25,6 +25,9 @@ const paths = {
   external: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m4-3h6v6m-11 5L21 3",
   menu: "M4 6h16M4 12h16M4 18h16",
   back: "m15 18-6-6 6-6",
+  spark: "M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3Zm7 12 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z",
+  copy: "M9 9h11v11H9V9Zm-4 6H4V4h11v1",
+  download: "M12 3v12m0 0-5-5m5 5 5-5M4 21h16",
 } as const;
 
 export type IconName = keyof typeof paths;

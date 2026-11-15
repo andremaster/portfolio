@@ -5,6 +5,47 @@ import { getContext } from "@/lib/context";
 import { indexSource } from "@/services/rag/indexer";
 import type { ActionState } from "./types";
 import { FUNCTIONS, type MemberFunction } from "@/lib/functions";
+import { parseHandoff } from "@/lib/handoff";
+
+const ORIGINS = ["chatgpt", "claude", "gemini", "copilot", "outra"] as const;
+const ORIGIN_LABEL: Record<(typeof ORIGINS)[number], string> = { chatgpt: "ChatGPT", claude: "Claude", gemini: "Gemini", copilot: "Copilot", outra: "outra IA" };
+
+/** Importa o handoff gerado na IA do usuário: vira fonte indexada e (opcional) preenche a ficha. */
+export async function importHandoff(_: ActionState, form: FormData): Promise<ActionState> {
+  const ctx = await getContext();
+  if (!ctx.project) return { error: "Selecione um projeto." };
+  if (!ctx.canWrite) return { error: "Seu perfil permite apenas consulta." };
+  const text = String(form.get("handoff") ?? "").trim();
+  if (text.length < 80) return { error: "Cole o handoff completo gerado pela sua IA." };
+  if (text.length > 200_000) return { error: "Handoff muito longo (máx. 200 mil caracteres)." };
+  const originRaw = String(form.get("origin") ?? "outra");
+  const origin = (ORIGINS as readonly string[]).includes(originRaw) ? (originRaw as (typeof ORIGINS)[number]) : "outra";
+
+  const name = `Handoff do ${ORIGIN_LABEL[origin]} — ${new Date().toLocaleDateString("pt-BR")}`;
+  const { data: source, error } = await ctx.supabase.from("knowledge_sources").insert({
+    project_id: ctx.project.id, name, source_type: "text", category: "handoff",
+    raw_text: text, origin, created_by: ctx.user.id,
+  }).select("id").single();
+  if (error || !source) return { error: "Não foi possível salvar o handoff." };
+
+  let briefMsg = "";
+  if (form.get("fill_brief") === "on" && ctx.canManage) {
+    const parsed = parseHandoff(text);
+    const { data: brief } = await ctx.supabase.from("project_briefs").select("*").eq("project_id", ctx.project.id).maybeSingle();
+    const patch: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parsed)) if (v && !(brief as Record<string, unknown> | null)?.[k]) patch[k] = v;
+    if (Object.keys(patch).length) {
+      await ctx.supabase.from("project_briefs").upsert({ ...patch, project_id: ctx.project.id, updated_by: ctx.user.id }, { onConflict: "project_id" });
+      briefMsg = ` Ficha: ${Object.keys(patch).length} campo(s) preenchido(s).`;
+      revalidatePath("/brief");
+    }
+  }
+
+  const r = await indexSource(ctx.supabase, source.id);
+  revalidatePath("/knowledge");
+  revalidatePath("/dashboard");
+  return r.ok ? { ok: `Handoff importado e indexado em ${r.chunks} trechos.${briefMsg}` } : { error: `Handoff salvo, mas a indexação falhou: ${r.error}` };
+}
 
 const TYPES = ["document", "code", "url", "image", "diagram", "decision", "manual", "api_spec", "text"] as const;
 const MAX_BYTES = 20 * 1024 * 1024;

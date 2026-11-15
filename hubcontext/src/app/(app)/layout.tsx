@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireOrg } from "@/lib/context";
 import { signOut } from "@/app/actions/auth";
-import { Brand } from "@/components/brand";
+import { Brand, LogoMark } from "@/components/brand";
 import { Icon } from "@/components/icons";
 import { BottomNav, ProjectSwitcher, SideNav } from "@/components/nav";
 import { initials, roleLabel } from "@/lib/format";
@@ -11,6 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const name = ctx.profile?.full_name ?? ctx.user.email ?? "";
   return (
     <div className="shell">
+      <div className="aurora" aria-hidden />
       <aside className="sidebar">
         <Brand sub={ctx.org.name} />
         <SideNav isExternal={ctx.isExternal} />
@@ -27,7 +28,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </aside>
       <div className="main">
         <header className="topbar">
-          <Link href="/dashboard" className="mobile-only"><div className="brand-mark" style={{ width: 30, height: 30, fontSize: ".85rem" }}>H</div></Link>
+          <Link href="/dashboard" className="mobile-only"><LogoMark size={30} /></Link>
           <ProjectSwitcher projects={ctx.projects} current={ctx.project?.id} />
           {ctx.isExternal && <span className="badge badge-warn">Acesso externo</span>}
           <div className="grow" />

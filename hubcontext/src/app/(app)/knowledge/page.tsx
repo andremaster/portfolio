@@ -3,7 +3,8 @@ import { requireOrg } from "@/lib/context";
 import { Icon, sourceIcon, sourceLabel } from "@/components/icons";
 import { Empty, NoProject } from "@/components/empty";
 import { timeAgo } from "@/lib/format";
-import { AddSource, SourceActions } from "./client";
+import { AddSource, HandoffImport, ReindexAll, SourceActions } from "./client";
+import { handoffPrompt } from "@/lib/handoff";
 import { functionLabel, type MemberFunction } from "@/lib/functions";
 
 export const metadata = { title: "Base de conhecimento" };
@@ -40,7 +41,12 @@ export default async function Knowledge({ searchParams }: { searchParams: Promis
     <>
       <div className="page-head">
         <div><h1>Base de conhecimento</h1><p className="muted">Documentos, código, APIs, diagramas e decisões que alimentam os agentes.</p></div>
-        {ctx.canWrite && <AddSource categories={categories} autoOpen={sp.add === "1"} />}
+        <div className="row row-wrap">
+          <a className="btn btn-ghost" href="/api/handoff" title="Baixa o contexto em Markdown para usar no ChatGPT, Claude ou Gemini"><Icon name="download" size={16} /> Levar para minha IA</a>
+          {ctx.canWrite && <ReindexAll />}
+          {ctx.canWrite && <HandoffImport prompt={handoffPrompt(ctx.project.name)} canManage={ctx.canManage} />}
+          {ctx.canWrite && <AddSource categories={categories} autoOpen={sp.add === "1"} />}
+        </div>
       </div>
 
       {ctx.isExternal && <div className="alert" style={{ background: "var(--warn-soft)", color: "var(--warn)" }}>Você está vendo apenas as fontes liberadas para o seu acesso externo.</div>}
