@@ -60,7 +60,7 @@ class OpenAICompatible implements AIProvider {
   }
 
   async embed(texts: string[]) {
-    if (!this.embedEp) throw new AIConfigError("Nenhum provedor de embeddings configurado. Em “IA da empresa”, conecte Gemini ou OpenAI para a busca nos documentos.");
+    if (!this.embedEp) throw new AIConfigError("Nenhum provedor de embeddings configurado. Em “IA e cobrança”, conecte Gemini ou OpenAI para a busca nos documentos.");
     const ep = this.embedEp;
     const out: number[][] = [];
     let sendDims = true;
@@ -150,7 +150,7 @@ export async function getAIForOrg(orgId: string): Promise<AIProvider> {
   const cfg = await loadOrgAISettings(orgId);
   if (cfg) return buildAI(cfg);
   if (process.env.PLATFORM_AI_FALLBACK === "true") return platformAI();
-  throw new AIConfigError("A IA da empresa ainda não foi conectada. Um administrador deve configurá-la em “IA da empresa”.");
+  throw new AIConfigError("A IA da empresa ainda não foi conectada. Um administrador deve conectá-la em “IA e cobrança”.");
 }
 
 /** Conexão de IA pessoal de um usuário (só chat). Confere o dono da conexão. */

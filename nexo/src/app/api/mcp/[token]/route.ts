@@ -156,7 +156,7 @@ async function callTool(admin: Admin, userId: string, name: string, args: Record
       }).select("id").single();
       if (error || !src) return text("Não foi possível salvar no Nexo.", true);
       const r = await indexSource("trusted", src.id);
-      done.push(r.ok ? `${kind} indexado em ${r.chunks} trechos` : `${kind} salvo, mas a indexação falhou: ${r.error}`);
+      done.push(r.ok ? `${kind === "resumo" ? "resumo indexado" : "conversa indexada"} em ${r.chunks} trechos` : `${kind === "resumo" ? "resumo salvo" : "conversa salva"}, mas a indexação falhou: ${r.error}`);
     }
     if (resumo && args.preencher_ficha && pm.manage) {
       const parsed = parseHandoff(resumo);
