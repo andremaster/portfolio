@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Brand } from "@/components/brand";
+import { Brand, LogoSymbol } from "@/components/brand";
 
 export const metadata = {
   title: "HubContext · A camada de contexto governada para IA nas empresas",
@@ -84,7 +84,8 @@ export default function Landing() {
       </nav>
 
       <section className="hero">
-        <span className="pill">● O hub de contexto dos seus projetos com IA</span>
+        <LogoSymbol size={88} />
+        <span className="pill">● Hub de contexto e conectores de IA para projetos</span>
         <h1>Um projeto. Um contexto. <span className="grad-text">Cada área com a IA certa.</span></h1>
         <p>Defina uma vez o objetivo, as regras de negócio, as restrições e as amostras de dados seguras do projeto. Dev, dados, jurídico, compliance, risco e empresas terceiras recebem o contexto certo para a sua função, com fontes, permissões e auditoria.</p>
         <div className="row row-wrap" style={{ justifyContent: "center" }}>

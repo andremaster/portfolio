@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk", display: "swap", weight: ["500", "600", "700"] });
+const sans = DM_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500"] });
 
 export const metadata: Metadata = {
   title: { default: "HubContext · Autyma", template: "%s · HubContext" },
@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   width: "device-width", initialScale: 1, viewportFit: "cover",
-  themeColor: "#07080f",
+  themeColor: "#f8fafc",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${grotesk.variable}`}>
+    <html lang="pt-BR" className={`${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );
