@@ -5,10 +5,10 @@
  * - Fundo claro: azul-marinho #111827 liso (arquivo public/nexo-logo.svg).
  */
 const BARS = [
-  { x: 27.4, y: 6, w: 9.2, h: 20.45 },     // cima
-  { x: 27.4, y: 37.55, w: 9.2, h: 20.45 }, // baixo
-  { x: 6, y: 27.4, w: 20.45, h: 9.2 },     // esquerda
-  { x: 37.55, y: 27.4, w: 20.45, h: 9.2 }, // direita
+  { x: 27.4, y: 6, w: 9.2, h: 20.45, dir: "up" },       // cima
+  { x: 27.4, y: 37.55, w: 9.2, h: 20.45, dir: "down" }, // baixo
+  { x: 6, y: 27.4, w: 20.45, h: 9.2, dir: "left" },     // esquerda
+  { x: 37.55, y: 27.4, w: 20.45, h: 9.2, dir: "right" },// direita
 ];
 
 export const LOGO_INK = "#111827";
@@ -26,7 +26,7 @@ function Bars({ id, tone }: { id: string; tone: "chumbo" | "ink" }) {
         </defs>
       )}
       {BARS.map((b, i) => (
-        <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx="2.95"
+        <rect key={i} className={`nx-bar nx-${b.dir}`} x={b.x} y={b.y} width={b.w} height={b.h} rx="2.95"
           fill={tone === "chumbo" ? `url(#${id}-c)` : LOGO_INK} />
       ))}
     </>
@@ -34,9 +34,9 @@ function Bars({ id, tone }: { id: string; tone: "chumbo" | "ink" }) {
 }
 
 /** Símbolo livre. Padrão: cinza chumbo metálico (fundos escuros). */
-export function LogoSymbol({ size = 30, tone = "chumbo" }: { size?: number; tone?: "chumbo" | "ink" }) {
+export function LogoSymbol({ size = 30, tone = "chumbo", animated = false }: { size?: number; tone?: "chumbo" | "ink"; animated?: boolean }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="logo-symbol">
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className={`logo-symbol${animated ? " logo-anim" : ""}`}>
       <Bars id={`nx-${tone}-${size}`} tone={tone} />
     </svg>
   );

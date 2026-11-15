@@ -84,7 +84,7 @@ export default function Landing() {
       </nav>
 
       <section className="hero">
-        <LogoSymbol size={88} />
+        <LogoSymbol size={96} animated />
         <span className="pill">● Hub de contexto e conectores de IA para projetos</span>
         <h1>Um projeto. Um contexto. <span className="grad-text">Cada área com a IA certa.</span></h1>
         <p>Defina uma vez o objetivo, as regras de negócio, as restrições e as amostras de dados seguras do projeto. Dev, dados, jurídico, compliance, risco e empresas terceiras recebem o contexto certo para a sua função, com fontes, permissões e auditoria.</p>
