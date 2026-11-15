@@ -1,40 +1,53 @@
 /**
  * Marca do Nexo — "Convergência Radial": quatro barras arredondadas apontam para o centro
- * sem se tocar (várias IAs e fontes convergindo em um único projeto). Geometria do SVG oficial
- * (nexo-logo.svg), acabamento cromado sobre grafite.
+ * sem se tocar (várias IAs e fontes convergindo em um único projeto).
+ * - Fundo escuro (o site): cinza chumbo com o mesmo degradê metálico das letras do título.
+ * - Fundo claro: azul-marinho #111827 liso (arquivo public/nexo-logo.svg).
  */
 const BARS = [
-  { x: 28.305, y: 6, w: 7.39, h: 21.05 },     // cima
-  { x: 28.305, y: 36.95, w: 7.39, h: 21.05 }, // baixo
-  { x: 6, y: 28.305, w: 21.05, h: 7.39 },     // esquerda
-  { x: 36.95, y: 28.305, w: 21.05, h: 7.39 }, // direita
+  { x: 27.4, y: 6, w: 9.2, h: 20.45 },     // cima
+  { x: 27.4, y: 37.55, w: 9.2, h: 20.45 }, // baixo
+  { x: 6, y: 27.4, w: 20.45, h: 9.2 },     // esquerda
+  { x: 37.55, y: 27.4, w: 20.45, h: 9.2 }, // direita
 ];
 
-/** Logo oficial (nexo-logo.svg): barras lisas em azul #1D4ED8. */
-const BLUE = "#1D4ED8";
-function Bars({ id: _id }: { id: string }) {
+export const LOGO_INK = "#111827";
+
+function Bars({ id, tone }: { id: string; tone: "chumbo" | "ink" }) {
   return (
     <>
-      {BARS.map((b, i) => <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx="2.956" fill={BLUE} />)}
+      {tone === "chumbo" && (
+        <defs>
+          {/* mesmo degradê do texto .grad-text (claro no alto → chumbo no meio → claro embaixo) */}
+          <linearGradient id={`${id}-c`} x1="0" y1="6" x2="0" y2="58" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#f4f6f8" /><stop offset=".38" stopColor="#c3cbd3" />
+            <stop offset=".62" stopColor="#6e7984" /><stop offset="1" stopColor="#d9dfe5" />
+          </linearGradient>
+        </defs>
+      )}
+      {BARS.map((b, i) => (
+        <rect key={i} x={b.x} y={b.y} width={b.w} height={b.h} rx="2.95"
+          fill={tone === "chumbo" ? `url(#${id}-c)` : LOGO_INK} />
+      ))}
     </>
   );
 }
 
-/** Símbolo livre (azul). */
-export function LogoSymbol({ size = 30 }: { size?: number }) {
+/** Símbolo livre. Padrão: cinza chumbo metálico (fundos escuros). */
+export function LogoSymbol({ size = 30, tone = "chumbo" }: { size?: number; tone?: "chumbo" | "ink" }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="logo-symbol">
-      <Bars id={`nx${size}`} />
+      <Bars id={`nx-${tone}-${size}`} tone={tone} />
     </svg>
   );
 }
 
-/** Ícone de app: squircle branco com o símbolo azul (como a arte oficial). */
+/** Ícone de app: quadrado branco com o símbolo azul-marinho (como a arte oficial). */
 export function LogoMark({ size = 32 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden className="logo-mark">
       <rect width="64" height="64" rx="16" fill="#ffffff" />
-      <g transform="translate(9.6 9.6) scale(.7)"><Bars id={`nxm${size}`} /></g>
+      <g transform="translate(6.4 6.4) scale(.8)"><Bars id={`nxm${size}`} tone="ink" /></g>
     </svg>
   );
 }
